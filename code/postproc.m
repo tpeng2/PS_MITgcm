@@ -2,10 +2,12 @@ clear,clc
 set(0,'defaultaxesfontsize',14)
 set(0,'defaultfigurecolor',[1 1 1])
 set(0,'defaultlinelinewidth',1.2) 
+%%
+plot_vort=0;
 %% Time stepping
 dt=150;% per step
-indmin_UV=000500; indmax_UV=2700000;
-indmin_WT=000500; indmax_WT=0270000;
+indmin_UV=0; indmax_UV=0270000;
+indmin_WT=0; indmax_WT=0270000;
 Diag_WT_freq=604800;
 Diag_UV_freq=604800;
 
@@ -16,7 +18,7 @@ dt=150;
 %% load z and calculate topography
 addpath('../code/')
 groupname='Top_CH-ACC';
-casename='run4km_160c';
+casename='run2km_240c';
 gcmpath=['/home/tpeng/scratch/MITgcm/examples/',groupname,'/',casename,'/'];
 path_output=['/home/tpeng/MITgcm/postproc/results/Top_CH-ACC/',casename,'/'];
 mkdir(path_output);
@@ -26,7 +28,7 @@ system(syscommand)
 % construct grids
 dyg=rdmds([gcmpath,'DYG']); drF=rdmds([gcmpath,'DRF']); dxg=rdmds([gcmpath,'DXG']);
 xg=rdmds([gcmpath,'XG']); yg=rdmds([gcmpath,'YG']); rF=rdmds([gcmpath,'RF']); 
-xc=rdmds([gcmpath,'XC']); yc=rdmds([gcmpath,'YC']); rc=rdmds([gcmpath,'RC']); 
+xc=rdmds([gcmpath,'XC']); yc=rdmds([gcmpath,'YC']); rC=rdmds([gcmpath,'RC']); 
 
 hFacC=rdmds([gcmpath,'hFacC']); 
 hFacCnan=hFacC;
@@ -43,9 +45,16 @@ xvort=dx:dx:dx*nx-1; yvort=dy:dy:dy*ny-1;
 dxg_3d = repmat(dxg,[1,1,nz]);xg_3d = repmat(xg,[1,1,nz]);
 dyg_3d = repmat(dyg,[1,1,nz]);yg_3d = repmat(yg,[1,1,nz]);
 drF_3d = repmat(drF,[nx,ny]); rF_3d = repmat(rF,[nx,ny]);
+rC_3d = repmat(rC,[nx,ny]);
 drF_3dFac=drF_3d.*hFacC; 
 vol_grid=(dxg_3d.*dyg_3d).*drF_3d;
 vol_gridFac=(dxg_3d.*dyg_3d).*drF_3d.*hFacCnan;
+% Uniform z-grid for interpolation
+nz_interp=2*nz;
+rC_unif=linspace(0,-4000,nz_interp); 
+rC_unif=reshape(rC_unif,[1,1,nz_interp]);
+rC_3d_unif=repmat(rC_unif,[nx,ny]);
+
 % Total volume and horizontal area
 Vol=(nx*dx*ny*dy*Lz);horArea=nx*dx*ny*dy;
 % vertical grids
@@ -95,4 +104,6 @@ read_DiagWT
 %%
 read_DiagUV
 %%
-vorticity_movie
+if plot_vort==1
+    vorticity_movie
+end
