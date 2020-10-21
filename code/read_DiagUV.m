@@ -49,7 +49,8 @@ for i=1:1:total_rdslice_UV
     UV=rdmds([gcmpath,'Diag_snaps_UV.',num2str(ind,'%010d')]);
     U=UV(:,:,:,1); V=UV(:,:,:,2);
     % calculate zonal transport
-    Transp(i)=mean(sum(sum((U.*dyg_3d).*drF_3d)));
+    Udydz=(U.*dyg_3d).*drF_3d;
+    Transp(i)=mean(sum(sum(Udydz,2),3));
     % calculate relative vorticity (k-component)
     Utop=U(:,:,1); Vtop=V(:,:,1);
     Vort_top(:,:,i)=curl(Utop,Vtop)/dx;
