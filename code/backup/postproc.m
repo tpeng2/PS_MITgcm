@@ -14,7 +14,6 @@ Diag_UV_freq=604800;
 %% model parameters
 f0=-7.2722e-5; beta=1.5E-11; 
 Lx=480e3; Ly=960e3; Lz=4e3;
-dt=150;
 %% load z and calculate topography
 addpath('../code/')
 groupname='Top_CH-ACC';
