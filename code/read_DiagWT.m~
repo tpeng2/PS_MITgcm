@@ -38,7 +38,7 @@ f_2d=repmat(f,[nx,1]);
 disp(['Total slides to read: ', num2str(total_rdslice_WT,'%06d')])
 for i=1:1:total_rdslice_WT
         ind=fileind_WT(i);
-        disp(['Processing WT: ',num2str(i/total_rdslice_WT*100,'%.3f'),'%, f_ind:',num2str(ind),' / ',num2str(fileind_WT(end))]);
+        disp(['Processing ',num2str(i/total_rdslice_WT*100,'%.4f'),'%, f_ind:',num2str(ind),' / ',num2str(fileind_WT(end))]);
         % for file name identifier
         if(i==1), startind_WT=ind;elseif (i==total_slices_WT), endind_WT=ind;end
 %         disp(['No. ',num2str(i,'%06d'),', file_ind: ',num2str(ind,'%010d')])
@@ -62,9 +62,9 @@ for i=1:1:total_rdslice_WT
         Tz1d_avg(:,i)=nanmean(nanmean(T));
         dzF=diff(zFac,[],3);dzF(dzF==0)=NaN;
         Tnorth_avg(:,i)=nanmean(Tnorth);
-        zF_S=squeeze(zFac(:,wallind_S,:));   dzF_south=squeeze(dzF(:,wallind_S,:));
-        zF_C=squeeze(zFac(:,wallind_C,:));   dzF_centr=squeeze(dzF(:,wallind_S,:));
-        zF_N=squeeze(zFac(:,wallind_N,:));   dzF_north=squeeze(dzF(:,wallind_S,:));
+        zF_S=squ(zFac(:,wallind_S,:),[nx,nz]);   dzF_south=reshape(dzF(:,wallind_S,:),[nx,nz-1]);
+        zF_C=reshape(zFac(:,wallind_C,:),[nx,nz]);   dzF_centr=reshape(dzF(:,wallind_S,:),[nx,nz-1]);
+        zF_N=reshape(zFac(:,wallind_N,:),[nx,nz]);   dzF_north=reshape(dzF(:,wallind_S,:),[nx,nz-1]);
         dTdzm_south(:,i)= nanmean(diff(Tsouth,[],2)./dzF_south);
         dTdzm_centr(:,i)= nanmean(diff(Tcentr,[],2)./dzF_centr);
         dTdzm_north(:,i)= nanmean(diff(Tnorth,[],2)./dzF_north);

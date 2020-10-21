@@ -59,11 +59,11 @@ rC_3d_unif=repmat(rC_unif,[nx,ny]);
 Vol=(nx*dx*ny*dy*Lz);horArea=nx*dx*ny*dy;
 % vertical grids
 z_cntr=1/2*drF(1)+cumsum(-drF); 
-z_cntr=reshape(z_cntr,[1,size(drF,3)]);% horizontal domain
+z_cntr=squeeze(z_cntr);% horizontal domain
 z_upper=zeros(size(drF,3),1);
-z_upper(2:end)=cumsum(-drF(1:end-1)); z_upper=reshape(z_upper,[1,size(drF,3)]);% horizontal domain
+z_upper(2:end)=cumsum(-drF(1:end-1)); z_upper=squeeze(z_upper);% horizontal domain
 z_lower=zeros(size(drF,3),1); z_lower(end)=-4000;z_lower(1:end-1)=cumsum(-drF(1:end-1));
-z_lower=reshape(z_lower,[1,size(drF,3)]);% horizontal domain
+z_lower=squeeze(z_lower);% horizontal domain
 zFac=cumsum(drF_3dFac,3); %effective z
 % coriolis map
 f=f0-y.*beta;f_2d=repmat(f,[nx,1]);

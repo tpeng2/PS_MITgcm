@@ -24,8 +24,8 @@ total_year_UV=total_day/360;
 yearind_UV=linspace(startyear,startyear+total_year_UV,total_rdslice_UV);
 
 % interpolation x-z plane
-Xg2d=reshape(xg_3d(:,ny/2,:),[nx,nz]); 
-ZC2d=reshape(rC_3d(:,ny/2,:),[nx,nz]); 
+Xg2d=squeeze(xg_3d(:,ny/2,:)); 
+ZC2d=squeeze(rC_3d(:,ny/2,:)); 
 [Xg2d,ZC2d]=meshgrid(xg(:,1,1),rC);
 [Xgint,ZCint]=meshgrid(xg(:,1,1),rC_unif);
 dz_unif=mean(diff(rC_unif));
@@ -43,14 +43,14 @@ dind=0;ind_old=0;
 mkdir(path_output,'images')
 for i=1:1:total_rdslice_UV
     ind=fileind_UV(i);
-    disp(['processing UV',num2str(i/total_rdslice_UV*100,'%.4f'),'%, f_ind:',num2str(ind),' / ',num2str(fileind_UV(end))]);
+    disp(['processing UV: ',num2str(i/total_rdslice_UV*100,'%.3f'),'%, f_ind:',num2str(ind),' / ',num2str(fileind_UV(end))]);
     if(i>1) dind=ind-ind_old;end
     % load temporary U
     UV=rdmds([gcmpath,'Diag_snaps_UV.',num2str(ind,'%010d')]);
     U=UV(:,:,:,1); V=UV(:,:,:,2);
     % calculate zonal transport
     Udydz=(U.*dyg_3d).*drF_3d;
-    Transp(i)=mean(sum(sum(Udydz,2),3));
+    Transp(i)=nanmean(nansum(nansum(Udydz,2),3));
     % calculate relative vorticity (k-component)
     Utop=U(:,:,1); Vtop=V(:,:,1);
     Vort_top(:,:,i)=curl(Utop,Vtop)/dx;
@@ -60,8 +60,8 @@ for i=1:1:total_rdslice_UV
     Vort_bot(:,:,i)=curl(Ubot,Vbot)/dx;
     % calculate j-componenet vorticity (-dw/dx+du/dz)
     % at (:,ny/2,:) plane
-     Uctr_xz=reshape(U(:,ny/2,:).*Zwetdry(:,ny/2,:),[nx,nz]); 
-     Wctr_xz=reshape(W(:,ny/2,:).*Zwetdry(:,ny/2,:),[nx,nz]); 
+     Uctr_xz=squeeze(U(:,ny/2,:).*Zwetdry(:,ny/2,:)); 
+     Wctr_xz=squeeze(W(:,ny/2,:).*Zwetdry(:,ny/2,:)); 
     % interpolate 
      Uctr_xz_unif=interp2(Xg2d,ZC2d,Uctr_xz',Xgint,ZCint);
      Wctr_xz_unif=interp2(Xg2d,ZC2d,Wctr_xz',Xgint,ZCint);
