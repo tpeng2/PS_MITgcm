@@ -47,7 +47,9 @@ for i=1:1:total_rdslice_UV
     if(i>1) dind=ind-ind_old;end
     % load temporary U
     UV=rdmds([gcmpath,'Diag_snaps_UV.',num2str(ind,'%010d')]);
+    WT=rdmds([gcmpath,'Diag_snaps_WT.',num2str(ind,'%010d')]);
     U=UV(:,:,:,1); V=UV(:,:,:,2);
+    W=WT(:,:,:,1); T=WT(:,:,:,2);
     % calculate zonal transport
     Udydz=(U.*dyg_3d).*drF_3d;
     Transp(i)=nanmean(nansum(nansum(Udydz,2),3));
