@@ -62,14 +62,14 @@ z_cntr=squeeze(z_cntr);% horizontal domain
 z_upper=zeros(size(drF,3),1);
 z_upper(2:end)=cumsum(-drF(1:end-1)); z_upper=squeeze(z_upper);% horizontal domain
 z_lower=zeros(size(drF,3),1); z_lower(end)=-4000;z_lower(1:end-1)=cumsum(-drF(1:end-1));
-z_lower=squeze(z_lower);% horizontal domain
+z_lower=squeeze(z_lower);% horizontal domain
 zFac=cumsum(drF_3dFac,3); %effective z
 % coriolis map
 f=f0-y.*beta;f_2d=repmat(f,[nx,1]);
 %% load topography
 ieee='b';
 accuracy='real*8';
-fid_top=fopen([gcmpath,'topog_',num2str(nx),'_',num2str(ny),'_sigma_200.box'],'r',ieee);
+fid_top=fopen([gcmpath,'topog_',num2str(nx),'_',num2str(ny),'_sigma_300.box'],'r',ieee);
 Zb=fread(fid_top,nx*ny,'real*8');
 Zb=reshape(Zb,[nx,ny]);
 Zwetdry=zeros(nx,ny,nz);Zwetdry(Zwetdry==0)=NaN;

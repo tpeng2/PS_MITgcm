@@ -2,9 +2,12 @@
 GPNAME=$1
 CNAME=$2
 
-dtpath=/home/tpeng/scratch/MITgcm/examples/${GPNAME}/${CNAME}/
-oppath=/home/tpeng/MITgcm/postproc/results/${GPNAME}/${CNAME}/
-bkpath=/home/tpeng/MITgcm/postproc/results/${GPNAME}/${CNAME}/backup/
+CASE_PATH=$3
+POST_RS_PATH=$4
+
+dtpath=/${CASE_PATH}/${CNAME}/
+oppath=${POST_RS_PATH}/${GPNAME}/${CNAME}/
+bkpath=${POST_RS_PATH}/${GPNAME}/${CNAME}/backup/
 
 # create folder if it doesn't exist
 mkdir -p ${oppath}
@@ -33,7 +36,7 @@ cp ${dtpath}hFac*ta ${oppath}
 echo 'Copy forcing and topography'
 sleep 2
 cp ${dtpath}*.box ${oppath}
-cp ${dtpath}*.sin_y ${oppath}
+cp ${dtpath}*.sin_y* ${oppath}
 
 # back up data
 echo 'Back up configuration'

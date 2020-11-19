@@ -5,23 +5,26 @@ set(0,'defaultlinelinewidth',1.2)
 %%
 plot_vort=0;
 %% Time stepping
-dt=150;% per step
-indmin_UV=0; indmax_UV=0270000;
-indmin_WT=0; indmax_WT=0270000;
-Diag_WT_freq=604800;
-Diag_UV_freq=604800;
+dt=120;% per step
+indmin_UV=0; indmax_UV=02700000;
+indmin_WT=0; indmax_WT=02700000;
+Diag_WT_freq=5184000;
+Diag_UV_freq=5184000;
 
 %% model parameters
-f0=-7.2722e-5; beta=1.5E-11; 
-Lx=480e3; Ly=960e3; Lz=4e3;
+f0=-1e-4; beta=1.5E-11; 
+Lx=480e3; Ly=960e3; Lz=2e3;
 %% load z and calculate topography
-addpath('../code/')
+addpath('../../code/')
 groupname='Top_CH-ACC';
-casename='run2km_240c';
-gcmpath=['/home/tpeng/scratch/MITgcm/examples/',groupname,'/',casename,'/'];
-path_output=['/home/tpeng/MITgcm/postproc/results/Top_CH-ACC/',casename,'/'];
+casename='woce2km_288c';
+case_path='/scratch/tpeng/MITgcm_cases/';
+post_result_path='/scratch/tpeng/MITgcm_post/results/';
+post_code_path='/scratch/tpeng/MITgcm_post/code/';
+gcmpath=[case_path,casename,'/'] 
+path_output=[post_result_path,'/',groupname,'/',casename,'/'] 
 mkdir(path_output);
-syscommand=['sh /home/tpeng/MITgcm/postproc/code/sh_scrpt/copy_grids.sh ',groupname,' ',casename,' '];
+syscommand=['sh ',post_code_path,'/sh_scrpt/copy_grids.sh ',groupname,' ',casename,' ',case_path,' ',post_result_path];
 system(syscommand)
 %%
 % construct grids
@@ -69,7 +72,7 @@ f=f0-y.*beta;f_2d=repmat(f,[nx,1]);
 %% load topography
 ieee='b';
 accuracy='real*8';
-fid_top=fopen([gcmpath,'topog_',num2str(nx),'_',num2str(ny),'_sigma_200.box'],'r',ieee);
+fid_top=fopen([gcmpath,'topog_',num2str(nx),'_',num2str(ny),'_sigma_300.box'],'r',ieee) 
 Zb=fread(fid_top,nx*ny,'real*8');
 Zb=reshape(Zb,[nx,ny]);
 Zwetdry=zeros(nx,ny,nz);Zwetdry(Zwetdry==0)=NaN;

@@ -91,6 +91,7 @@ for i=1:1:total_rdslice_UV
     ind_old=ind;
 end
 %%
+path_output
 save([path_output,'VORT_',num2str(startind_UV,'%010d'),'-',num2str(Diag_UV_freq/86400,'%010d'),'d-',num2str(endind_WT,'%010d'),'.mat'],...
     'Vort_top','Vort_bot','Vort_xz','Transp','Xgint','ZCint','X','Y');
 
