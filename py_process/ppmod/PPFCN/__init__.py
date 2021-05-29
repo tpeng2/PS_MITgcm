@@ -130,10 +130,11 @@ class Exf_UVP_2D:
         V_tensor=tch.tensor(self.V_filters[0][:,None,None])*self.V
         R=tch.complex(U_tensor.type(tch.float),V_tensor.type(tch.float))
         del U_tensor; del V_tensor;
-        fft_R=tch.fft.fft(R,dim=0)
+        self.fft_R=tch.fft.fft(R,dim=0)
         del R
-        self.PRR=(fft_R)*tch.conj(fft_R)
-        del fft_R
+        PRR=(self.fft_R)*tch.conj(self.fft_R)
+        self.rotary_spec=tch.mean(PRR[:,3:-3,3:-3],dim=[1,2]).real
+        del PRR
         
     def calc_rotary_spectrum_geo_residual(self):
         U_tensor=tch.tensor(self.U_filters[0][:,None,None])*(self.U-self.ugeo)
@@ -142,7 +143,8 @@ class Exf_UVP_2D:
         del U_tensor; del V_tensor;
         fft_R=tch.fft.fft(R,dim=0)
         del R
-        self.PRR_dgeo=(fft_R)*tch.conj(fft_R)
+        PRR_dgeo=(fft_R)*tch.conj(fft_R)
+        self.rotary_spec_dgeo=tch.mean(PRR[:,3:-3,3:-3],dim=[1,2]).real
         del fft_R
         
     def calc_rotary_spectrum_geo(self):
@@ -153,11 +155,11 @@ class Exf_UVP_2D:
         V_tensor=tch.tensor(self.V_filters[0][:,None,None])*(self.vgeo)
         R=tch.complex(U_tensor.type(tch.float),V_tensor.type(tch.float))
         del U_tensor; del V_tensor;
-        fft_R=tch.fft.fft(R,dim=0)
+        self.fft_R_geo=tch.fft.fft(R,dim=0)
         del R
-        self.PRR_geo=(fft_R)*tch.conj(fft_R)
-        del fft_R
-    
+        PRR=(self.fft_R_geo)*tch.conj(self.fft_R_geo)
+        self.rotary_spec_geo=tch.mean(PRR[:,3:-3,3:-3],dim=[1,2]).real
+        del PRR
 
     def gen_ft_array(self,res_smp,len_smp):
         if np.mod(len_smp,2)==0:

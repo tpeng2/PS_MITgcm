@@ -37,11 +37,14 @@ print('Read casename as '+args.casename)
 print('Read start_ind as '+args.start_ind)
 print('Read end_ind as '+args.end_ind)
 print('Read loc_str as '+args.loc_str)
+
+# ### For interactive test ###
 # groupname=''
 # casename='rel_uvar_9'
-
 # start_ind= 500150;
 # end_ind= 533334;
+# loc_str='surf'
+# ### For interactive test ###
 
 start_ind_str="{f_ind:010d}".format(f_ind=int(start_ind))
 end_ind_str="{f_ind:010d}".format(f_ind=int(end_ind))
@@ -102,24 +105,17 @@ tch.save(zeta_surf.vort,save_tsr_path+'Vort_'+loc_str+'_'+casename+'_'+
 delattr(zeta_surf, 'vort')
 print('zeta_surf.vort is deleted.')
 
-# #%%
-# exf=utils.rdmds('/aos/home/tpeng/postproc/results/ExtSurf/rel_ucon_12/EXF/EXFtau.0000530014')
-
-# plt.pcolormesh(xc/1e3,yc/1e3,exf[1]);plt.axis('scaled');plt.colorbar();plt.title(r'$U_{10} [m/s]$')
-# plt.show()
-# plt.pcolormesh(xc/1e3,yc/1e3,exf[0]);plt.axis('scaled');plt.colorbar();plt.title(r'$\tau_x [N/m^2]$')
-# plt.show()
 #%%
+Nfile=len(zeta_surf.U)
+nt=tch.linspace(0,1/0.125/2,Nfile//2)
 def plot_rotary_spectra(zeta,loc_str):
-    rotary_spec=tch.mean(zeta.PRR[:,3:-3,3:-3],dim=[1,2]).real
-    Nfile=len(zeta.U)
-    nt=tch.linspace(0,1/0.125/2,Nfile//2)
+    rotary_spec=zeta.rotary_spec
     plt.loglog(nt,(rotary_spec[1:Nfile//2+1])),plt.loglog(nt,tch.flipud(rotary_spec[Nfile//2:]),'--'),plt.legend(('positive - CCW','negative - CW'));
     plt.xlabel('cpd'),plt.ylabel(r'$P_{RR}$'),plt.title('Rotary spectrum -- '+loc_str)
     plt.ylim([1e-3,1e3])
     
 def plot_rotary_spectra_geo(zeta,loc_str):
-    rotary_spec=tch.mean(zeta.PRR_geo[:,3:-3,3:-3],dim=[1,2]).real
+    rotary_spec=zeta.rotary_spec_geo
     Nfile=len(zeta.ugeo)
     nt=tch.linspace(0,1/0.125/2,Nfile//2)
     plt.loglog(nt,(rotary_spec[1:Nfile//2+1])),plt.loglog(nt,tch.flipud(rotary_spec[Nfile//2:]),'--'),
@@ -140,14 +136,23 @@ plot_rotary_spectra_geo(zeta_surf,loc_str)
 plt.savefig(save_img_path+'rotary_spec'+loc_str+'_'+casename+'_'+
          U_start_ind_str+'_'+U_end_ind_str+'.png',dpi=300)
 
-tch.save(zeta_surf.PRR,save_tsr_path+'PRR_'+loc_str+'_'+casename+'_'+
+# stack rotary spectra
+rotary_spec_stack=tch.stack([nt,zeta_surf.rotary_spec[1:Nfile//2+1],
+                            zeta_surf.rotary_spec[Nfile//2:],
+                            zeta_surf.rotary_spec_geo[1:Nfile//2+1],
+                            zeta_surf.rotary_spec_geo[Nfile//2:]])
+
+tch.save(rotary_spec_stack,save_tsr_path+'PRR1D'+loc_str+'_'+casename+'_'+
          U_start_ind_str+'_'+U_end_ind_str+'.pt',pickle_protocol=4)
-tch.save(zeta_surf.PRR,save_tsr_path+'PRR_geo_'+loc_str+'_'+casename+'-'+
+
+tch.save(zeta_surf.fft_R,save_tsr_path+'fft_R_'+loc_str+'_'+casename+'_'+
+         U_start_ind_str+'_'+U_end_ind_str+'.pt',pickle_protocol=4)
+tch.save(zeta_surf.fft_R_geo,save_tsr_path+'fft_R_geo_'+loc_str+'_'+casename+'-'+
          P_start_ind_str+'_'+P_end_ind_str+'.pt',pickle_protocol=4)
-delattr(zeta_surf, 'PRR'); 
-print('zeta_surf.PRR is deleted.')
-delattr(zeta_surf, 'PRR_geo'); 
-print('zeta_surf.PRR_geo is deleted.')
+delattr(zeta_surf, 'fft_R'); 
+print('zeta_surf.fft_R is deleted.')
+delattr(zeta_surf, 'fft_R_geo'); 
+print('zeta_surf.fft_R_geo is deleted.')
 #%%
 niter_max=45;
 zeta_surf.calc_vort_eta(niter_max)
@@ -156,4 +161,4 @@ tch.save(zeta_surf.Vort_eta,save_tsr_path+'Vort_eta_'+loc_str+'_'+casename+'_'+
 delattr(zeta_surf, 'Vort_eta')
 print('zeta_surf.Vort_eta is deleted.')
 
-#%%  print results
+print('done')
