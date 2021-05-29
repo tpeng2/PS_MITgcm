@@ -1,0 +1,12 @@
+{Index exceeds the number of array elements (0).
+
+Error in postproc (line 60)
+z_cntr=1/2*drF(1)+cumsum(-drF);
+
+Error in run (line 91)
+evalin('caller', strcat(script, ';'));
+} 
+
+real	0m36.704s
+user	0m8.310s
+sys	0m1.623s

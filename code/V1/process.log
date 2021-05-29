@@ -1,0 +1,49 @@
+Opening log file:  /tmp/java.log.31900
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2018 The MathWorks, Inc.
+                   R2018b (9.5.0.944444) 64-bit (glnxa64)
+                              August 28, 2018
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+[Warning: Directory already exists.] 
+[> In postproc (line 23)
+  In run (line 91)] 
+Copy complete grids
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/XC.*ta': No such file or directory
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/YC.*ta': No such file or directory
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/XG.*ta': No such file or directory
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/YG.*ta': No such file or directory
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/RC.*ta': No such file or directory
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/RF.*ta': No such file or directory
+Copy incremental grids
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/D*C.*ta': No such file or directory
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/D*G.*ta': No such file or directory
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/D*F.*ta': No such file or directory
+Copy hFac files
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/hFac*ta': No such file or directory
+Copy forcing and topography
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/*.box': No such file or directory
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/*.sin_y': No such file or directory
+Back up configuration
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/data*': No such file or directory
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/eedata': No such file or directory
+cp: cannot stat '/home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/*.box': No such file or directory
+
+ans =
+
+     1
+
+No files match the search: /home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/DYG.*meta
+No files match the search: /home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/DRF.*meta
+No files match the search: /home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/DXG.*meta
+No files match the search: /home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/XG.*meta
+No files match the search: /home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/YG.*meta
+No files match the search: /home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/RF.*meta
+No files match the search: /home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/XC.*meta
+No files match the search: /home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/YC.*meta
+No files match the search: /home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/RC.*meta
+No files match the search: /home/tpeng/scratch/MITgcm/examples/Top_CH-ACC/run2km_240c/hFacC.*meta
