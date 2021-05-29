@@ -1,0 +1,50 @@
+created virtual environment CPython3.8.2.final.0-64 in 4418ms
+  creator CPython3Posix(dest=/localscratch/tpeng.19998948.0/env, clear=False, global=False)
+  seeder FromAppData(download=False, pip=latest, setuptools=latest, wheel=latest, via=copy, app_data_dir=/home/tpeng/.local/share/virtualenv/seed-app-data/v1.0.1)
+  activators BashActivator,CShellActivator,FishActivator,PowerShellActivator,PythonActivator,XonshActivator
+Ignoring pip: markers 'python_version < "3"' don't match your environment
+Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/avx512, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/avx2, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
+Requirement already up-to-date: pip<21 in /localscratch/tpeng.19998948.0/env/lib/python3.8/site-packages (from -c /cvmfs/soft.computecanada.ca/config/python/constraints.txt (line 2)) (20.0.2)
+Ignoring pip: markers 'python_version < "3"' don't match your environment
+Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/avx512, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/avx2, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/avx2, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/certifi-2020.6.20-py2.py3-none-any.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/cycler-0.10.0-py3-none-any.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/generic/dill-0.3.3-py3-none-any.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/nix/avx2/kiwisolver-1.2.0-cp38-cp38-linux_x86_64.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/generic/matplotlib-3.3.2-cp38-cp38-linux_x86_64.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/generic/numpy-1.19.1-cp38-cp38-linux_x86_64.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/generic/pandas-1.1.3-cp38-cp38-linux_x86_64.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/Pillow-7.2.0-cp38-cp38-linux_x86_64.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/pyparsing-2.4.7-py2.py3-none-any.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/generic/python_dateutil-2.8.1-py2.py3-none-any.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/generic/pytz-2020.4-py3-none-any.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/generic/scipy-1.4.1-cp38-cp38-linux_x86_64.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/generic/six-1.15.0-py2.py3-none-any.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/torch-1.7.0-cp38-cp38-linux_x86_64.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/typing_extensions-3.10.0.0-py3-none-any.whl
+Processing /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/future-0.18.2-py3-none-any.whl
+Installing collected packages: certifi, six, cycler, dill, kiwisolver, Pillow, numpy, python-dateutil, pyparsing, matplotlib, pytz, pandas, scipy, typing-extensions, future, torch
+Successfully installed Pillow-7.2.0 certifi-2020.6.20 cycler-0.10.0 dill-0.3.3 future-0.18.2 kiwisolver-1.2.0 matplotlib-3.3.2 numpy-1.19.1 pandas-1.1.3 pyparsing-2.4.7 python-dateutil-2.8.1 pytz-2020.4 scipy-1.4.1 six-1.15.0 torch-1.7.0 typing-extensions-3.10.0.0
+Ignoring pip: markers 'python_version < "3"' don't match your environment
+Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/avx512, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/avx2, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
+Processing /home/tpeng/backup/py_packs/MITgcmutils-0.1.2-py3-none-any.whl
+Requirement already satisfied: numpy in /localscratch/tpeng.19998948.0/env/lib/python3.8/site-packages (from MITgcmutils==0.1.2) (1.19.1)
+Installing collected packages: MITgcmutils
+Successfully installed MITgcmutils-0.1.2
+RuntimeError: module compiled against API version 0xe but this version of numpy is 0xd
+Traceback (most recent call last):
+  File ".//py_test.py", line 17, in <module>
+    import scipy.io as scipyio
+  File "/localscratch/tpeng.19998948.0/env/lib/python3.8/site-packages/scipy/io/__init__.py", line 99, in <module>
+    from .matlab import loadmat, savemat, whosmat, byteordercodes
+  File "/localscratch/tpeng.19998948.0/env/lib/python3.8/site-packages/scipy/io/matlab/__init__.py", line 13, in <module>
+    from .mio import loadmat, savemat, whosmat
+  File "/localscratch/tpeng.19998948.0/env/lib/python3.8/site-packages/scipy/io/matlab/mio.py", line 11, in <module>
+    from .mio4 import MatFile4Reader, MatFile4Writer
+  File "/localscratch/tpeng.19998948.0/env/lib/python3.8/site-packages/scipy/io/matlab/mio4.py", line 11, in <module>
+    import scipy.sparse
+  File "/localscratch/tpeng.19998948.0/env/lib/python3.8/site-packages/scipy/sparse/__init__.py", line 230, in <module>
+    from .csr import *
+  File "/localscratch/tpeng.19998948.0/env/lib/python3.8/site-packages/scipy/sparse/csr.py", line 13, in <module>
+    from ._sparsetools import (csr_tocsc, csr_tobsr, csr_count_blocks,
+ImportError: numpy.core.multiarray failed to import
