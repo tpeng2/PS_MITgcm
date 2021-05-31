@@ -120,7 +120,8 @@ def plot_2d_colorbar(imgfiled,xvec,yvec,xlabel_str,ylabel_str,title_str,cmap_str
         ftype='.png'
         fpath='./'
     fig.set_size_inches(8,6)
-    fig.savefig(fpath+'/'+fname+ftype, dpi=300, bbox_inches='tight',pad_inches = 0)
+    fig.savefig(fpath+'/'+fname+ftype, dpi=400, bbox_inches='tight',pad_inches = 0)
+    plt.close('all') 
     del fig
 
 
