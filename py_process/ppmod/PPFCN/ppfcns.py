@@ -102,6 +102,35 @@ def consolidate_2Dfield(fpath_2D,fheader,start_ind,end_ind,Ny,Nx,Nfiles):
 
 
 # plot 2D functions
+def plot_2d_movie(tsr2D,xvec,yvec,xlabel_str,ylabel_str,title_str,cmap_str,clim_range,plt_asp=1,fname=None,ftype=None,fpath=None,fps=24):
+    import matplotlib.cm as cm
+    import matplotlib.animation as animation
+    from datetime import datetime
+    fig = plt.figure();
+    frames = [] # for storing the generated images
+    image = [];# some array of images
+    ax = fig.add_subplot(111,aspect=plt_asp);
+    Nfile=len(tsr2D)
+    for i in range(Nfile):
+        plm=ax.pcolormesh(xvec,yvec,tsr2D[i],cmap=plt.cm.get_cmap(cmap_str),shading='auto');
+        fig.colorbar(plm);plm.set_clim(clim_range);
+        ax.set_xlabel(xlabel_str,fontsize='small');
+        ax.set_ylabel(ylabel_str,fontsize='small');
+        ax.set_title(title_str,fontsize='small')
+        frames.append(plm)
+    fig.set_size_inches(8,6)
+    ani = animation.ArtistAnimation(fig, frames, interval=1/(fps), blit=True,
+                                repeat_delay=1000)
+    # ax.axis('tight')
+    if fname==None:
+        return
+    elif ftype==None and fpath == None:
+        ftype='.mp4'
+        fpath='./postproc/img/'
+    ani.save(fpath+'/'+fname+ftype, writer=animation.FFMpegWriter(), fps=24, dpi=400)	
+    plt.close('all') 
+    del fig
+    del ani
     
 def plot_2d_colorbar(imgfiled,xvec,yvec,xlabel_str,ylabel_str,title_str,cmap_str,clim_range,plt_asp=1,fname=None,ftype=None,fpath=None):
     from datetime import datetime
@@ -124,7 +153,10 @@ def plot_2d_colorbar(imgfiled,xvec,yvec,xlabel_str,ylabel_str,title_str,cmap_str
     plt.close('all') 
     del fig
 
+# Animation
+# ref: kcdragon(https://stackoverflow.com/questions/34975972/how-can-i-make-a-video-from-array-of-images-in-matplotlib)
 
+    
 #%% Make U, V vorticity
 # dim [Ny,Nx]
 def get_vorticity(U,V,dx,dy):

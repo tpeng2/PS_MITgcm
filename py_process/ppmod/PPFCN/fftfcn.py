@@ -8,6 +8,7 @@ PPFCNS.fftfcn
 
 import numpy as np
 import torch as tch
+import PPFCN.ppfcns as ppf
 
 
 # class proc_2D_field:
@@ -24,7 +25,7 @@ import torch as tch
 #     def read_2D_fields(self,):
     
 
-""" Gaussian Filter """
+""" Gaussian Filter (from internet) """ 
 import math
 import numbers
 import torch
@@ -124,3 +125,22 @@ def kl_to_kappa(k,l):
     kappa=tch.sqrt(kk**2+ll**2)
     return kappa.clone().detach()
 
+#%% Frequency filter
+def fourier_freq_filter(A,Fs,f_cut_left,f_cut_right):
+    Nfile=len(A)
+    #set index
+    if np.mod(Nfile//2,2)==0:
+        nfreq=tch.linspace(0,Nfile//2-1,Nfile//2).type(tch.long)
+    else:
+        nfreq=tch.linspace(0,Nfile//2,Nfile//2+1).type(tch.long)
+    Afilter=ppf.gen_filter_1d(A)
+    Afilter=tch.tensor(Afilter[2])
+    Afft=tch.fft.rfft(A*Afilter)[nfreq]
+    spd=n_to_freq(gen_n_vec(Nfile),Fs)[nfreq]
+    # remove unwanted signals
+    nfreq_cut_left=tch.where(spd<f_cut_left)
+    nfreq_cut_right=tch.where(spd>=f_cut_right)
+    Afft[nfreq_cut_left]=tch.complex(tch.tensor(0.),tch.tensor(0.))
+    Afft[nfreq_cut_right]=tch.complex(tch.tensor(0.),tch.tensor(0.))
+    A_filtered=tch.fft.irfft(Afft,axis=0)
+    return A_filtered.detach().clone()
