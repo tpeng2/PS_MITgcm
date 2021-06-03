@@ -135,12 +135,12 @@ def fourier_freq_filter(A,Fs,f_cut_left,f_cut_right):
         nfreq=tch.linspace(0,Nfile//2,Nfile//2+1).type(tch.long)
     Afilter=ppf.gen_filter_1d(A)
     Afilter=tch.tensor(Afilter[2])
-    Afft=tch.fft.rfft(A*Afilter)[nfreq]
+    Afft=tch.fft.rfft(A*Afilter)[nfreq].type(tch.complex64)
     spd=n_to_freq(gen_n_vec(Nfile),Fs)[nfreq]
     # remove unwanted signals
     nfreq_cut_left=tch.where(spd<f_cut_left)
     nfreq_cut_right=tch.where(spd>=f_cut_right)
-    Afft[nfreq_cut_left]=tch.complex(tch.tensor(0.),tch.tensor(0.))
-    Afft[nfreq_cut_right]=tch.complex(tch.tensor(0.),tch.tensor(0.))
+    Afft[nfreq_cut_left]=tch.complex(tch.tensor(0.),tch.tensor(0.)).type(tch.complex64)
+    Afft[nfreq_cut_right]=tch.complex(tch.tensor(0.),tch.tensor(0.)).type(tch.complex64)
     A_filtered=tch.fft.irfft(Afft,axis=0)
     return A_filtered.detach().clone()

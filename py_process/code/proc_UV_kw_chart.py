@@ -79,7 +79,7 @@ dx=500; dy = 500;
 zeta_all=ppf.get_vorticity(Usurf,Vsurf,dx,dy)
 
 
-dt=0.125
+dt=1/Fs
 Usurf=tch.tensor(Usurf).detach().clone()
 Vsurf=tch.tensor(Vsurf).detach().clone()
 

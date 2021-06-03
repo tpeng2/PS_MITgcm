@@ -84,7 +84,7 @@ Ly=960e3
 xc=np.linspace(dx/2,Lx-dx/2,int(Lx//dx))
 yc=np.linspace(dy/2,Ly-dy/2,int(Ly//dy))
 
-f,f_2D=ppf.gen_f_coriolis(-1e-4,1.5-11,xc,yc)
+f,f_2D=ppf.gen_f_coriolis(-1e-4,1.5e-11,xc,yc)
 if flg_plot_zeta=='Y':
     Nfile=len(vort)
 elif flg_plot_lapeta=='Y':
@@ -95,24 +95,24 @@ elif flg_plot_lapeta=='Y':
 #%% Frequency filtering
 T_wind=60480
 f_iner=86400/T_wind
-def save_filtered_2D_tsr(M,Fs,f_cut_low,f_cut_high,path_tsr,fname_M,label_str):
-    M_filtered=fcn.fourier_freq_filter(M,Fs,f_cut_low,f_cut_high)
+def save_filtered_2D_tsr(M,Fs,f_cut_low,f_cut_right,path_tsr,fname_M,label_str):
+    M_filtered=fcn.fourier_freq_filter(M,Fs,f_cut_low,f_cut_right)
     tch.save(M_filtered,path_tsr+label_str+fname_M,pickle_protocol=4)
     del M_filtered
-    print('Filtered field: '+namestr(M))
+    print('Filtered field: '+label_str+'_'+fname_M)
 
 f_cut_left=0
 f_cut_mid=0.1*f_iner
 f_cut_right=2*f_iner
 
-# # vort_eta
-# save_filtered_2D_tsr(vort_eta,Fs,f_cut_left,f_cut_mid,path_tsr,fname_vort_eta,'fltd_low_')
-# save_filtered_2D_tsr(vort_eta,Fs,f_cut_mid,f_cut_high,path_tsr,fname_vort_eta,'fltd_mid_')
-# save_filtered_2D_tsr(vort_eta,Fs,f_cut_right,Fs,path_tsr,fname_vort_eta,'fltd_high_')
+# vort_eta
+save_filtered_2D_tsr(vort_eta,Fs,f_cut_left,f_cut_mid,path_tsr,fname_vort_eta_tsr,'fltd_low_')
+save_filtered_2D_tsr(vort_eta,Fs,f_cut_mid,f_cut_right,path_tsr,fname_vort_eta_tsr,'fltd_mid_')
+save_filtered_2D_tsr(vort_eta,Fs,f_cut_right,Fs,path_tsr,fname_vort_eta_tsr,'fltd_high_')
 
 # vort
 save_filtered_2D_tsr(vort,Fs,f_cut_left,f_cut_mid,path_tsr,fname_vort_tsr,'fltd_low_')
-save_filtered_2D_tsr(vort,Fs,f_cut_mid,f_cut_high,path_tsr,fname_vort_tsr,'fltd_mid_')
+save_filtered_2D_tsr(vort,Fs,f_cut_mid,f_cut_right,path_tsr,fname_vort_tsr,'fltd_mid_')
 save_filtered_2D_tsr(vort,Fs,f_cut_right,Fs,path_tsr,fname_vort_tsr,'fltd_high_')
 
 path_save_img=home_dir+'/postproc/img/'
@@ -123,23 +123,23 @@ if(flg_plot_zeta=='Y' or flg_plot_lapeta=='Y' or flg_plot_diff=='Y'):
         day='{ind:07.3f}'.format(ind=i*1/Fs)
         print('Plotting '+ str(i)+' of '+ str(Nfile) + ' files.')
         if (flg_plot_zeta=='Y'):
-            fpath=save_img_path=home_dir+'/postproc/img/'+fname_vort_str[:25]
+            fpath=save_img_path=home_dir+'/postproc/img/'+fname_vort_tsr[:25]
             if not os.path.exists(fpath):
                 os.makedirs(fpath)
             ppf.plot_2d_colorbar(vort[i,15:-15]/f_2D[15:-15],xc/1000,yc[15:-15]/1000,'x [km]','y [km]',
                             r'Relative vorticity $\zeta/f$','bwr',[-1,1],plt_asp=1,
-                            fname=fname_vort_str[:25]+str(start_ind)+'_'+str(day)+'_days',ftype='.png',fpath=home_dir+'/postproc/img/')
+                            fname=fname_vort_tsr[:25]+str(start_ind)+'_'+str(day)+'_days',ftype='.png',fpath=home_dir+'/postproc/img/')
         if (start_ind_str == start_ind_eta_str and flg_plot_lapeta=='Y'):
-            fpath=save_img_path=home_dir+'/postproc/img/'+fname_vort_eta_str[:25]
+            fpath=save_img_path=home_dir+'/postproc/img/'+fname_vort_eta_tsr[:25]
             if not os.path.exists(fpath):
                 os.makedirs(fpath)
             ppf.plot_2d_colorbar(vort_eta[i,15:-15],xc/1000,yc[15:-15]/1000,'x [km]','y [km]',
                              r'Inferred vorticity $\nabla^2 \eta /f^2 g$','bwr',[-1,1],plt_asp=1,
                              fname=fname_vort_eta_tsr[:25]+str(start_ind)+'_'+str(day)+'_days',ftype='.png',fpath=home_dir+'/postproc/img/')
             if (flg_plot_diff=='Y' or flg_plot_diff==1):
-                fpath=save_img_path=home_dir+'/postproc/img/d_'+fname_vort_eta_str[:25]
+                fpath=save_img_path=home_dir+'/postproc/img/d_'+fname_vort_eta_tsr[:25]
                 if not os.path.exists(fpath):
                     os.makedirs(fpath)
-                ppf.plot_2d_colorbar(vort[i,15:-15]/f_2D-vort_eta[i,15:-15],xc/1000,yc[15:-15]/1000,'x [km]','y [km]',
+                ppf.plot_2d_colorbar(vort[i,15:-15]/f_2D[15:-15]-vort_eta[i,15:-15],xc/1000,yc[15:-15]/1000,'x [km]','y [km]',
                                  r'Differences: $\zeta/f-\nabla^2 \eta /f^2 g$','bwr',[-1,1],plt_asp=1,
                                  fname='d_'+fname_vort_tsr[:25]+str(start_ind)+'_'+str(day)+'_days',ftype='.png',fpath=home_dir+'/postproc/img/')
