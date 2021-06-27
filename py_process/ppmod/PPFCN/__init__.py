@@ -21,7 +21,7 @@ from matplotlib.gridspec import GridSpec
 import scipy.io as scipyio
 import glob
 import PPFCN.ppfcns as ppf
-
+import os
 
 #%% Class
 class cls_Ext_xy_2Dmap:
@@ -197,3 +197,152 @@ class Exf_UVP_2D:
         del self.V
     def del_P(self):
         del self.P        
+
+#%% 
+'''Updated June 24th, 2021. Save extracted layers as a tape with a specific 
+Length indicated in the file names'''
+class cls_3D_Diag():
+    def __init__(self,dx,dy,Lx,Ly,ind_z,fhead,path_scratch,path_results,groupname,casename,start_ind,end_ind):
+        self.dx=dx # uniform zonal resolution [m]
+        self.dy=dy # uniform meridional resolution [m]
+        self.Lx=Lx # domain length in X (zonal) [m]
+        self.Ly=Ly # domain length in y (meridional) [m]
+        self.ny=int(Ly/dy) # grid point in X
+        self.nx=int(Lx/dx) # grid point in Y
+        self.ind_z=ind_z # This is an array, check Diagnostic file
+        self.nz=len(ind_z)
+        self.xc=np.linspace(dx/2,Lx-dx/2,self.nx)
+        self.yc=np.linspace(dy/2,Ly-dy/2,self.ny)
+        self.fhead=fhead # File head before the index (e.g., "FFF.0000XXXX.data")
+        self.__path_scratch=path_scratch
+        self.path_results=path_results
+        self.groupname=groupname
+        self.casename=casename
+        self.__start_ind=start_ind
+        self.__end_ind=end_ind
+        self.__ftype='.meta' #from /pkg/diagnostics
+    # Assign path and file index range
+    def assign_path(self):
+        if self.__path_scratch[-1]!='/':
+            self.__path_scratch=self.__path_scratch+'/' # Adding '/' to the path
+        # case-specific path for Diags
+        self.path_3D_Diag=self.__path_scratch+self.groupname+'/'+self.casename+'/'+'DNG/' 
+        print('Read diagnostics files stored at: '+self.path_3D_Diag)
+        rawfname=ppf.search_binary(self.path_3D_Diag,self.fhead+'*'+self.__ftype)
+        # trim file into desired range
+        self.fname=ppf.trim_fname(rawfname,self.__ftype,self.__start_ind,self.__end_ind)
+        print('file name are trimmed now')
+        self.Nfile=len(self.fname)
+        print('Processing '+str(self.Nfile)+' files with name starting with "'+self.fhead+'"')
+        del rawfname
+        
+    # Load files
+    def get_file_ind(self):
+        file_ind_str=[]
+        file_ind=[]
+        for i in range(self.Nfile):
+            if len(self.__ftype)==0:
+                file_ind_str.append(self.fname[i][-(10):])
+                file_ind.append(int(self.fname[i][-(10):]))
+            else:
+                file_ind_str.append(self.fname[i][-(10+len(self.__ftype)):-len(self.__ftype)])
+                file_ind.append(int(self.fname[i][-(10+len(self.__ftype)):-len(self.__ftype)]))
+        self.file_ind_str=file_ind_str # string (matching naming rules of /pkg/diagnostics)
+        self.file_ind=file_ind # integer of file index
+        print('First file index: '+self.file_ind_str[0]+'\nLast file index: '+self.file_ind_str[-1])
+        del file_ind; del file_ind_str
+    
+    # group weekly
+    def tape_file(self,tape_days,Fs,dt_model):
+        self.dt_model=dt_model # [s]
+        self.__dind_Diag=int(Fs*86400/self.dt_model)
+        self.Fs=Fs # how many slides of Diagnostics per day (see data.diagnostics)
+        days_read=self.Nfile//self.Fs
+        self.__Ntape=int(days_read//tape_days)+1
+        # Initialize: Corresponding index for each step in a tape
+        self.tape_index_str=['']*self.__Ntape
+        # How many days in a tape (will be included in the file name)
+        self.__days_tape=np.ones(self.__Ntape,dtype=int)*tape_days
+        # Filename of saving outputs
+        self.fhead_ts=['']*self.__Ntape
+        # Format
+        fmt_ind="{ind:010d}"
+        fmt_days="{days:03d}"
+        # First file to be read in the group
+        self.__start_ind_str=fmt_ind.format(ind=self.__start_ind)
+        self.__end_ind_str=fmt_ind.format(ind=self.__end_ind)
+        # determine how many days in the last files
+        if mod(days_read,tape_days)!=0:
+            self.__days_tape[-1]=mod(days_read,tape_days)
+        for i in arange(self.__Ntape):
+            if i==0:
+                start_tape_ind=i;
+                end_tape_ind=int(self.__days_tape[i]*self.Fs)
+            else:
+                # start_tape_ind=(i)*int(self.__days_tape[i]*self.Fs)
+                start_tape_ind=end_tape_ind #other wise there is one element missing
+                end_tape_ind=end_tape_ind+int(self.__days_tape[i]*self.Fs)
+            # Update file index 
+            if i==self.__Ntape-1:
+                self.__end_ind=self.file_ind[end_tape_ind]
+                self.file_ind=self.file_ind[0:end_tape_ind]
+                self.file_ind_str=self.file_ind_str[0:end_tape_ind]
+                # Last file to be read in the group
+            self.tape_index_str[i]=self.file_ind_str[start_tape_ind:end_tape_ind]
+            days_tape_str=fmt_days.format(days=self.__days_tape[i])
+            file_tape_str=fmt_days.format(days=i+1)
+            Ntape_str=fmt_days.format(days=self.__Ntape)
+            nz_str=fmt_days.format(days=self.nz)
+            self.fhead_ts[i]=self.fhead+'_'+self.__start_ind_str+'_'\
+                +self.__end_ind_str+'_file_'+file_tape_str+'_of_'+Ntape_str+'_'+days_tape_str+'days.pt'
+        # Then, group self.fname into tape group
+        # IMPORTANT!!!
+        # empty tensor: tch.empty(Nx,Ny)
+    # cut and set file names for target horizontal slides
+    def cut_xylayers(self,z_target):
+        self.__fhead_layer_ts=['']*self.__Ntape
+        if len(z_target) != 1:
+            print('NOTE: MORE THAN ONE LAYER WILL BE EXTRACTED')
+        z_target_str='_'.join(map(str,z_target))
+        # nz_str="{:03d}".formats(self.nz)
+        for i in arange(self.__Ntape):
+            self.__fhead_layer_ts[i]=self.fhead_ts[i][:-3]+'_layer_'+z_target_str+self.fhead_ts[i][-3:]
+        print(self.__fhead_layer_ts)
+    # load DNG and store layers
+    def load_diag_files(self,name_fields):
+        self.__name_fields=name_fields
+        self.__num_fields=len(self.__name_fields)
+        # load file 
+        # Initialize empty tensor for each field and corresponding paths
+        self.path_diag_savetape=['']*self.__num_fields
+        for k in arange(self.__num_fields):
+            self.path_diag_savetape[k]=['']*self.__Ntape
+        for i in arange(self.__Ntape):
+            print('Read files for tape #'+str(i+1)+' of '+str(self.__Ntape)+' for '+str(self.__days_tape[i])+' days')
+            nfile_tape=self.__days_tape[i]*self.Fs
+            print('Total num of files for tape #'+str(i)+' is '+str(nfile_tape))
+            # Initialize temporary field to save
+            tmp_field_to_save=['']*self.__num_fields
+            # set filename for each tape
+            for k in arange(self.__num_fields):
+                # set file name
+                results_dir=self.path_results+'/layered_ts/'+self.groupname+\
+                    '/'+self.casename+'/'
+                self.path_diag_savetape[k][i]=results_dir+self.__name_fields[k]+'_'+self.groupname+'_'\
+                    +self.casename+'_'+self.__fhead_layer_ts[i][len(self.fhead):]
+                # mkdir if it doesn't exists
+                if not os.path.exists(results_dir):
+                    os.makedirs(results_dir)
+                # initialize tmp_field_to_save
+                tmp_field_to_save[k]=tch.empty(nfile_tape,self.nz,self.ny,self.nx)
+            for j in arange(nfile_tape):
+                fname_mds=self.fhead+'.'+self.tape_index_str[i][j]
+                print('Loading (#'+str(j+1)+'/'+str(nfile_tape)+'): '+\
+                      fname_mds+' for tape #'+str(i+1)+'/'+str(self.__Ntape))
+                Diag_read=tch.tensor(utils.rdmds(self.path_3D_Diag+fname_mds))
+                for k in arange(self.__num_fields):
+                    tmp_field_to_save[k][j]=Diag_read[k]
+            #save file for each tape    
+            for k in arange(self.__num_fields):
+                tch.save(tmp_field_to_save[k],self.path_diag_savetape[k][i],pickle_protocol=4)
+                print('File '+self.path_diag_savetape[k][i]+' is saved.')
