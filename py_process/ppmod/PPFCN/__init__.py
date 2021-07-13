@@ -347,3 +347,35 @@ class cls_3D_Diag():
             for k in arange(self.__num_fields):
                 tch.save(tmp_field_to_save[k],self.path_diag_savetape[k][i],pickle_protocol=4)
                 print('File '+self.path_diag_savetape[k][i]+' is saved.')
+
+#%% Load saved clas files
+class UV_from_ts():
+    def __init__(self,path_saved_obj,filed_name):
+        fname_obj=glob.glob(path_saved_obj+filed_name+'*')
+        if len(fname_obj) > 1:
+            print('More than one file is found')
+        file_load_obj = open(fname_obj[0], 'rb')
+        self.UV_obj=pickle.load(file_load_obj)
+    def load_stitch_tensor(self,iz_target):
+        path_diag_savetape=self.UV_obj.path_diag_savetape
+        ntape=len(self.UV_obj.tape_index_str) # for each field
+        nfile_ptp=np.zeros(ntape,dtype=int)
+        for j in arange(ntape):
+            nfile_ptp[j]=int(len(self.UV_obj.tape_index_str[j]))  # how many files each tape
+        nfield=len(self.UV_obj.path_diag_savetape) # U and V 
+        nx=self.UV_obj.nx
+        ny=self.UV_obj.ny
+        nz=self.UV_obj.nz
+        # initiate field2D tensor
+        self.field2D=['']*nfield
+        for i in arange(nfield):
+            self.nfile_total=int(np.sum(nfile_ptp))
+            self.field2D[i]=tch.empty([self.nfile_total,len(iz_target),ny,nx])
+            cnt_file=0
+            for j in arange(ntape):
+                print('reading field '+str(i)+'; tape '+str(j))
+                print('from '+str(cnt_file)+' to '+str(cnt_file+nfile_ptp[j]))
+                print('open file: '+self.UV_obj.path_diag_savetape[i][j])
+                self.field2D[i][cnt_file:cnt_file+nfile_ptp[j]]=tch.load(self.UV_obj.path_diag_savetape[i][j])[:,iz_target,:,:] #load file 
+                cnt_file=cnt_file+nfile_ptp[j] #index inclusive
+        return

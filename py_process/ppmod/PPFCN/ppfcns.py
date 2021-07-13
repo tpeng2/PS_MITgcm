@@ -159,50 +159,64 @@ def plot_2d_colorbar(imgfiled,xvec,yvec,xlabel_str,ylabel_str,title_str,cmap_str
     
 #%% Make U, V vorticity
 # dim [Ny,Nx]
+
+
 def get_vorticity(U,V,dx,dy):
     Nx=U.shape[2]; Ny=V.shape[1];
     dUsurf_dy=np.diff(U,n=1,axis=1)/dy # ==> (Ny-1,Nx) at zeta point
     dVsurf_dx=np.diff(V,n=1,axis=2)/dx # ==> (Ny, Nx-1) at zeta point
-    # dUsurf_dx=np.diff(U,n=1,axis=0)/dx # ==> (Ny-1,Nx) at zeta point
-    # dVsurf_dy=np.diff(V,n=1,axis=1)/dy # ==> (Ny, Nx-1) at zeta point
     # Add edge values:
     if len(U.shape) == 2:
         # 2D
         dU_dy_ff=np.zeros([Ny,Nx])
         dV_dx_ff=np.zeros([Ny,Nx])
-        dU_dx_ff=np.zeros([Ny,Nx])
-        dV_dy_ff=np.zeros([Ny,Nx])
     elif len(U.shape)==3:
         Nfile_UV=U.shape[0]
         # Add edge values:
         dU_dy_ff=np.zeros([Nfile_UV,Ny,Nx])
         dV_dx_ff=np.zeros([Nfile_UV,Ny,Nx])
-        dU_dx_ff=np.zeros([Nfile_UV,Ny,Nx])
-        dV_dy_ff=np.zeros([Nfile_UV,Ny,Nx])
     dU_dy_ff[:,1:,:]=dUsurf_dy
-    dV_dx_ff[:,:,1:]=dVsurf_dx
-    # dU_dx_ff[1:,:]=dUsurf_dx
-    # dV_dy_ff[:,1:]=dVsurf_dy
-    
+    dV_dx_ff[:,:,1:]=dVsurf_dx    
     # edge value
     dU_dy_ff[:,0,:]=U[:,0,:]/(dy/2)
     dV_dx_ff[:,:,0]=(V[:,:,0]-V[:,:,-1])/(dx)
-    # dV_dy_ff[0,:]=V[0,:]/(dy/2)
-    # dU_dx_ff[:,0]=(U[:,0]-U[:,-1])/(dx)
     # vorticity
     zeta=dV_dx_ff-dU_dy_ff;
-    # div=dV_dy_ff+dU_dx_ff
-    return zeta#,div
+    return zeta
 
 
+
+def get_divergence(U,V,dx,dy):
+    Nx=U.shape[2]; Ny=V.shape[1];
+    dUsurf_dx=np.diff(U,n=1,axis=2)/dx # ==> (Ny-1,Nx) at zeta point
+    dVsurf_dy=np.diff(V,n=1,axis=1)/dy # ==> (Ny, Nx-1) at zeta point
+    # Add edge values:
+    if len(U.shape) == 2:
+        # 2D
+        dU_dx_ff=np.zeros([Ny,Nx])
+        dV_dy_ff=np.zeros([Ny,Nx])
+    elif len(U.shape)==3:
+        Nfile_UV=U.shape[0]
+        # Add edge values:
+        dU_dx_ff=np.zeros([Nfile_UV,Ny,Nx])
+        dV_dy_ff=np.zeros([Nfile_UV,Ny,Nx])
+    dU_dx_ff[:,:,1:]=dUsurf_dx
+    dV_dy_ff[:,1:,:]=dVsurf_dy
+    
+    # edge value
+    dU_dx_ff[:,:,0]=(U[:,:,0]-U[:,:,-1])/(dx)
+    dV_dy_ff[:,0,:]=V[:,0,:]/(dy/2)
+    # divergence
+    div=dV_dy_ff+dU_dx_ff
+    return div
 
 
 #%% Laplacian of 2D matrix
 
 def calc_Laplacian(M,dx,dy):
     dM=np.gradient(M);
-    dM_dx=dM[1]/dx; ddM_dx2=np.gradient(dM_dx)[1]/dx;
-    dM_dy=dM[0]/dy; ddM_dy2=np.gradient(dM_dy)[0]/dy;
+    dM_dx=dM[2]/dx; ddM_dx2=np.gradient(dM_dx)[2]/dx;
+    dM_dy=dM[1]/dy; ddM_dy2=np.gradient(dM_dy)[1]/dy;
     StrM=ddM_dx2-ddM_dy2;
     LapM=ddM_dx2+ddM_dy2;
     return LapM,StrM
@@ -301,6 +315,24 @@ def interp_eta_zeta(zeta,dx_move,dy_move,Lx,Ly,max_iters,min_res_rto):
         y_output=y_orig
             
     return zeta_shift,residual,x_output,y_output
+
+#%% Mirror field in y
+def mirror_field_in_y(M,dy):
+    Nx=M.shape[2]
+    Ny=M.shape[1]
+    Nt=M.shape[0]
+    dM1=(M[:,-2,:]-M[:,-3,:])/dy
+    dM2=(M[:,-3,:]-M[:,-4,:])/dy
+    M_southfill=M[:,-2,:]+3/4*dM1+1/4*dM2
+    M_mrr=tch.empty((Nt,Ny*2,Nx))
+    M_mrr[:,:Ny,:]=M.clone().detach();
+    M_mrr[:,Ny:,:]=tch.fliplr(M);
+    M_mrr[:,Ny-1,:]=M_southfill
+    M_mrr[:,Ny,:]=M_southfill
+    M_mrr[:,0,:]=M_mrr[:,1,:]
+    M_mrr[:,-1,:]=M_mrr[:,-2,:]
+    return M_mrr
+
 
 #%%
 T_ref_initial=[7.950849079316678,

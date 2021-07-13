@@ -9,7 +9,8 @@ PPFCNS.fftfcn
 import numpy as np
 import torch as tch
 import PPFCN.ppfcns as ppf
-
+import PPFCN.fftfcn as fcn
+import torch.fft as tchfft
 
 # class proc_2D_field:
 #     """ To handle 2D fields, using FFT and other tools """
@@ -144,3 +145,70 @@ def fourier_freq_filter(A,Fs,f_cut_left,f_cut_right):
     Afft[nfreq_cut_right]=tch.complex(tch.tensor(0.),tch.tensor(0.)).type(tch.complex64)
     A_filtered=tch.fft.irfft(Afft,axis=0)
     return A_filtered.detach().clone()
+
+#%% process kw spectra for one field
+
+def proc_kw_spec(M,Nx,Ny,Nt,Lx,Ly,Lt,Fs,bins=400):
+    
+    #% mirror in y
+    dy=Ly/Ny
+    M_mrr=ppf.mirror_field_in_y(M,dy)
+    M=M_mrr
+    filter_M=ppf.gen_filter_1d(M)
+    for i in np.arange(len(filter_M)):
+        filter_M[i]=tch.tensor(filter_M[i])
+
+    M_filtered=M*filter_M[2][None,None,:]    # in y
+    print('Filters are added on y-direction')
+
+    nk=gen_n_vec(Nx)
+    nl=gen_n_vec(2*Ny)
+    nomg=gen_n_vec(Nt)
+    # scale with its length
+    k=n_to_freq(nk,Nx/Lx) 
+    l=n_to_freq(nl,Ny/Ly)
+    omg=n_to_freq(nomg,Nt/Lt)
+    # get 2D kappa map
+    kappa=kl_to_kappa(l,k)
+    kappa_limit=tch.max(kappa)/np.sqrt(2)
+    kappa_circ=kappa.clone().detach()
+    kappa_circ[tch.where(kappa>kappa_limit)]=tch.tensor(float('nan'))
+    kappa_crop=kappa_circ[0:Ny+1,:]
+
+    #%  bin 2D kappa map
+    # create an index map
+    hist_kappa,binedge_kappa=np.histogram(kappa[~tch.isnan(kappa)],bins=400)
+    dbin_kappa=np.mean(np.diff(binedge_kappa))
+    ind_kappa=np.arange(0,len(binedge_kappa))
+    # mapping to the labels (ind_kappa)
+    label_kappa=tch.zeros(kappa.shape)
+    for i in np.arange(len(ind_kappa)):
+        label_kappa[kappa>binedge_kappa[i]]=i
+    
+    label_kappa_eff=label_kappa[0:len(l)//2+1,:]
+    print('2D kappa binned, shape: '+str(label_kappa_eff.shape))
+    
+    M_fft_kl=tchfft.rfftn(M_filtered,dim=[2,1])
+    print('2D x-y rfftn, shape: '+str(M_fft_kl.shape))
+    M_fft_klw=tchfft.fft(M_fft_kl,dim=0)
+    del M_fft_kl, M
+
+    E_M_fft_klw=get_fftpower(M_fft_klw) 
+    del M_fft_klw
+    print('Shape of 2D spectra generated: '+str(E_M_fft_klw.shape))
+
+    #%create 2D wavenumber-time matrix
+    KE_kappaT=tch.zeros([Nt,len(hist_kappa)])
+    print(KE_kappaT.shape)
+    # average 
+    nhist_kappa=tch.zeros(len(hist_kappa))
+    # go through each kappa label 
+    for i in np.arange(int(len(ind_kappa)//np.sqrt(2)-1)):
+        # find label first
+        lbl_y,lbl_x=tch.where(label_kappa_eff==i)
+        KE_kappaT[:,i]=tch.sum(E_M_fft_klw[:,lbl_y,lbl_x],dim=[1])
+    KE_kappaT_eff=KE_kappaT[0:Nt//2,:]
+    return omg,binedge_kappa,KE_kappaT_eff
+
+
+
