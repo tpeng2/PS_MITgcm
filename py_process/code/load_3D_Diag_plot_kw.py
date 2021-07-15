@@ -237,7 +237,7 @@ zeta2D=tch.tensor(ppf.get_vorticity(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_ob
 omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,zeta2D,clim_min=-10,clim_max=-6,spec_name='ZETA',opt_mirror=True,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/')
 plt_iz_target=2; loc_str='-200m'
 zeta2D=tch.tensor(ppf.get_vorticity(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy))
-omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,zeta2D,clim_min=-10,csurflim_max=-6,spec_name='ZETA',opt_mirror=True,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/')
+omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,zeta2D,clim_min=-10,clim_max=-6,spec_name='ZETA',opt_mirror=True,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/')
 del zeta2D
 
 
