@@ -21,8 +21,8 @@ Used for reading files from direct outputs, diagnostics, and extracted binary fi
 ### Features
 1. Instantaneous fields 
    - [x] Reading Diagnostics files (using MITgcm's `MITgcmutils.rdmds()`)
-   - [ ] Reorganizing diagnostics file and store them based on the location of vertical layers
-   - [x] Plotting instantaneous fields (U, V, W, SSH, T, rel. vorticity, Lap(lap(SSH)), etc.)
+   - [x] Reorganizing diagnostics file and store them based on the location of vertical layers (meta data object: `$HOME/postproc/results/saved_obj/`, tensors used for PyTorch: `$HOME/postproc/results/layered_ts/` 
+   - [x] Plotting instantaneous fields (U, V, W, SSH, T, rel. vorticity, Lap(lap(SSH)), etc., saved in `$HOME/postproc/img/` )
    - [x] Output instantaneous into movie files 
    - [x] Storing fields in tensor (for `PyTorch`)
 
@@ -31,4 +31,52 @@ Used for reading files from direct outputs, diagnostics, and extracted binary fi
    - [x] Rotary spectra given 2-D time series of U and V
    - [x] Fourier filters on given frequency window
    - [ ] Fourier filters on given spatial resolution window
+
+#### Example 1 
+
+Code for reorganize Diagnostics MDS files:
+** Executable shell script **
+`./py_process/sh_script/run_load_diagnostics.sh`
+
+In this file, edit the desired parameters and case information:
+
+For example,
+`
+dx=500
+dy=500
+Lx=480000
+Ly=960000
+ind_z=1,2,3,4,5,20,60
+fhead='Diag_snaps_UV'
+path_scratch=$HOME/scratch/MITgcm_cases/
+path_results=$HOME/postproc/results/
+groupname=''
+casename="rel_uvar_9"
+start_ind=700000
+end_ind=734421
+
+tape_days=7
+Fs=8
+dt_model=75
+z_target=1`
+
+| Parameter  | input | Notes |
+| ------------- | ------------- | ------------- |
+| dx  | 500  | zonal resolution |
+| dy  | 500  | meridional resolution |
+| Lx  | 480000  | zonal dimension |
+| Ly  | 960000  | zonal dimension |
+| ind_z  | 1,2,3,4,5,20,60  | index of vertical layers stored in Diagnostics file (see data.diagnostics) |
+| fhead  | 'Diag_snaps_UV'  | (string with quotation marks) File head of specific diagnostics file, can be changed later for the desired field |
+| path_scratch  | $HOME/scratch/MITgcm_cases/  | where raw case is stored |
+| path_results  | $HOME/postproc/results/  | where extracted results will be stored |
+| groupname  | ''  | (string with quotation marks) group name (parent directory of cases) |
+| casename  | 'rel_uvar_9'  | (string with quotation marks) case name (directory name) |
+| start_ind  | 700000  | the lower limit for searching file index |
+| end_ind  | 734421  | the upper limit for searching file index |
+| tape_days  | 7  | how many days one saved file contains (1.2 GB for one field for 7 days with dx=dy=500m) |
+| Fs  | 8  | sampling rate of diagnostics file (Fs=8 <==> getting samples every 14400s)|
+| dt_model  | 75  | timestep size in MITgcm model |
+| z_target  | 0,1,4,5  | (dummy currently) desired vertical layer to store tensors |
+
 
