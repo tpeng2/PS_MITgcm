@@ -34,6 +34,8 @@ Used for reading files from direct outputs, diagnostics, and extracted binary fi
 
 #### Example 1 
 
+##### Part A. Extract Diagnostic files
+
 Code for reorganize Diagnostics MDS files:
 ** Executable shell script **
 `./py_process/sh_script/run_load_diagnostics.sh`
@@ -79,5 +81,32 @@ z_target=1
 | Fs  | 8  | sampling rate of diagnostics file (Fs=8 <==> getting samples every 14400s)|
 | dt_model  | 75  | timestep size in MITgcm model |
 | z_target  | 0,1,4,5  | (dummy currently) desired vertical layer to store tensors |
+| name_fields  | 'Uvel','Vvel'  | name of each field extracted |
 
+
+Then, run `$HOME/MITgcm_post/py_process/code/read_save_3D_Diag_cls.py` with flags of parameters 
+name_fields='Uvel','Vvel'
+```
+python $HOME/MITgcm_post/py_process/code/read_save_3D_Diag_cls.py --dx=$dx --dy=$dy\
+      --Lx=$Lx --Ly=$Ly --ind_z=$ind_z --fhead=$fhead --path_scratch=$path_scratch\
+      --path_results=$path_results --groupname=$groupname  --casename=$casename\
+      --start_ind=$start_ind --end_ind=$end_ind --tape_days=$tape_days --Fs=$Fs\
+      --dt_model=$dt_model --z_target=$z_target --name_fields=$name_fields
+```
+This will generate two groups of files.
+
+The name, data structures, and paths of raw MDS files, tensors, and results will be stored in `$HOME/postproc/results/saved_obj/`, indicated by the group name and case name. Loading these files requires import the `pickle` package in Python.
+
+Tensors of each extracted field will be stored at `$HOME/postproc/results/layered_ts/`, which will be loaded using PyTorch `.load()` function.
+
+##### Part B. Plotting instantaneous filed or spectral analysis results
+
+Using the same script, simply call the script `$HOME/MITgcm_post/py_process/code/load_3D_Diag_plot_kw.py` with the same parameters. For example,
+```
+python $HOME/MITgcm_post/py_process/code/load_3D_Diag_plot_kw.py --dx=$dx --dy=$dy\
+        --Lx=$Lx --Ly=$Ly --path_scratch=$path_scratch --path_results=$path_results\
+        --groupname=$groupname  --casename=$casename --start_ind=$start_ind --end_ind=$end_ind\
+        --tape_days=$tape_days --Fs=$Fs --dt_model=$dt_model --z_target=$z_target --name_fields=$name_fields
+```
+Images will be stored at `$HOME/postproc/img/`.
 
