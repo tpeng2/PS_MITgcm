@@ -210,7 +210,10 @@ def get_divergence(U,V,dx,dy):
     div=dV_dy_ff+dU_dx_ff
     return div
 
-
+def calc_geostrophic_velocity(P,dx,dy,f_2D):
+    ugeo=-np.gradient(P,axis=1)/dy/(f_2D) # P is P/rho
+    vgeo=np.gradient(P,axis=2)/dx/(f_2D)
+    return ugeo,vgeo
 #%% Laplacian of 2D matrix
 
 def calc_Laplacian(M,dx,dy):

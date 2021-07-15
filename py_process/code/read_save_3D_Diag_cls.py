@@ -115,6 +115,6 @@ load_diag_files(Diag_UV_7layers,**dict_inside_cls)
 for k in arange(len(dict_inside_cls['name_fields'])):
     path_save_cls=Diag_UV_7layers.path_results+'/saved_obj/'+Diag_UV_7layers.groupname+'/'+Diag_UV_7layers.casename+'/'
     if not os.path.exists(path_save_cls):
-        os.mkdir(path_save_cls)
+        os.makedirs(path_save_cls)
     file_save_cls = open(path_save_cls+dict_inside_cls['name_fields'][k]+'.obj', 'wb') 
     pickle.dump(Diag_UV_7layers,file_save_cls)

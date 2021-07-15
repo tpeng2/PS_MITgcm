@@ -148,12 +148,15 @@ def fourier_freq_filter(A,Fs,f_cut_left,f_cut_right):
 
 #%% process kw spectra for one field
 
-def proc_kw_spec(M,Nx,Ny,Nt,Lx,Ly,Lt,Fs,bins=400):
-    
-    #% mirror in y
-    dy=Ly/Ny
-    M_mrr=ppf.mirror_field_in_y(M,dy)
-    M=M_mrr
+def proc_kw_spec(M,Nx,Ny,Nt,Lx,Ly,Lt,Fs,bins=400,opt_mirror=True):
+    if opt_mirror == True:
+        #% mirror in y
+        dy=Ly/Ny
+        M_mrr=ppf.mirror_field_in_y(M,dy)
+        M=M_mrr
+        nl=gen_n_vec(2*Ny)
+    else: 
+        nl=gen_n_vec(Ny)
     filter_M=ppf.gen_filter_1d(M)
     for i in np.arange(len(filter_M)):
         filter_M[i]=tch.tensor(filter_M[i])
@@ -162,7 +165,7 @@ def proc_kw_spec(M,Nx,Ny,Nt,Lx,Ly,Lt,Fs,bins=400):
     print('Filters are added on y-direction')
 
     nk=gen_n_vec(Nx)
-    nl=gen_n_vec(2*Ny)
+
     nomg=gen_n_vec(Nt)
     # scale with its length
     k=n_to_freq(nk,Nx/Lx) 
