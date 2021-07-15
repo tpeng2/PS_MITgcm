@@ -84,7 +84,8 @@ z_target=1
 | Fs  | 8  | sampling rate of diagnostics file (Fs=8 <==> getting samples every 14400s)|
 | dt_model  | 75  | timestep size in MITgcm model |
 | z_target  | 0,1,4,5  | (dummy currently) desired vertical layer to store tensors |
-| name_fields  | 'Uvel','Vvel'  | name of each field extracted |
+| name_fields  | 'Uvel','Vvel'  **Executable shell script**
+`./py_process/sh_script/run_load_diagnostics.sh`| name of each field extracted |
 
 
 Then, run `$HOME/MITgcm_post/py_process/code/read_save_3D_Diag_cls.py` with flags of parameters 
@@ -113,3 +114,5 @@ python $HOME/MITgcm_post/py_process/code/load_3D_Diag_plot_kw.py --dx=$dx --dy=$
 ```
 Images will be stored at `$HOME/postproc/img/`.
 
+**A separate plotting shell script is given too**
+`./py_process/sh_script/run_plotting.sh`
