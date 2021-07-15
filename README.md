@@ -41,7 +41,7 @@ Code for reorganize Diagnostics MDS files:
 In this file, edit the desired parameters and case information:
 
 For example,
-`
+```
 dx=500
 dy=500
 Lx=480000
@@ -58,7 +58,8 @@ end_ind=734421
 tape_days=7
 Fs=8
 dt_model=75
-z_target=1`
+z_target=1
+```
 
 | Parameter  | input | Notes |
 | ------------- | ------------- | ------------- |
