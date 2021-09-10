@@ -341,8 +341,12 @@ class cls_3D_Diag():
                 print('Loading (#'+str(j+1)+'/'+str(nfile_tape)+'): '+\
                       fname_mds+' for tape #'+str(i+1)+'/'+str(self.__Ntape))
                 Diag_read=tch.tensor(utils.rdmds(self.path_3D_Diag+fname_mds))
-                for k in arange(self.__num_fields):
-                    tmp_field_to_save[k][j]=Diag_read[k]
+                if self.__num_fields>1:
+                    for k in arange(self.__num_fields):
+                        tmp_field_to_save[k][j]=Diag_read[k]
+                elif self.__num_fields==1:
+                    for k in arange(self.__num_fields):
+                        tmp_field_to_save[k][j]=Diag_read                    
             #save file for each tape    
             for k in arange(self.__num_fields):
                 tch.save(tmp_field_to_save[k],self.path_diag_savetape[k][i],pickle_protocol=4)

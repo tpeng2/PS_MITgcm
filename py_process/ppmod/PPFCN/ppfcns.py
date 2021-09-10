@@ -320,21 +320,30 @@ def interp_eta_zeta(zeta,dx_move,dy_move,Lx,Ly,max_iters,min_res_rto):
     return zeta_shift,residual,x_output,y_output
 
 #%% Mirror field in y
-def mirror_field_in_y(M,dy):
-    Nx=M.shape[2]
-    Ny=M.shape[1]
-    Nt=M.shape[0]
-    dM1=(M[:,-2,:]-M[:,-3,:])/dy
-    dM2=(M[:,-3,:]-M[:,-4,:])/dy
-    M_southfill=M[:,-2,:]+3/4*dM1+1/4*dM2
-    M_mrr=tch.empty((Nt,Ny*2,Nx))
-    M_mrr[:,:Ny,:]=M.clone().detach();
-    M_mrr[:,Ny:,:]=tch.fliplr(M);
-    M_mrr[:,Ny-1,:]=M_southfill
-    M_mrr[:,Ny,:]=M_southfill
-    M_mrr[:,0,:]=M_mrr[:,1,:]
-    M_mrr[:,-1,:]=M_mrr[:,-2,:]
-    return M_mrr
+def mirror_field_in_y(M,dy,opt_mirror):
+    if opt_mirror==0:
+        return M
+    if opt_mirror==1:
+        Nx=M.shape[2]
+        Ny=M.shape[1]
+        Nt=M.shape[0]
+        M[:,0]=M[:,1]
+        M[:,-1]=M[:,-2]
+        M_mrr=tch.empty((Nt,Ny*2,Nx))
+        M_mrr[:,:Ny,:]=M.clone().detach();
+        M_mrr[:,Ny:,:]=tch.fliplr(M);
+        return M_mrr
+    if opt_mirror==-1:
+        Nx=M.shape[2]
+        Ny=M.shape[1]
+        Nt=M.shape[0]
+        M[:,0]=M[:,1]
+        M[:,-1]=M[:,-2]
+        M_mrr=tch.empty((Nt,Ny*2,Nx))
+        M_mrr[:,:Ny,:]=M.clone().detach();
+        M_mrr[:,Ny:,:]=-tch.fliplr(M);
+        return M_mrr
+
 
 
 #%%

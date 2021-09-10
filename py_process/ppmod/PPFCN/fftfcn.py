@@ -149,7 +149,7 @@ def fourier_freq_filter(A,Fs,f_cut_left,f_cut_right):
 #%% process kw spectra for one field
 
 def proc_kw_spec(M,Nx,Ny,Nt,Lx,Ly,Lt,Fs,bins=400,opt_mirror=1):
-    if opt_mirror == 1:
+    if opt_mirror == 1 or opt_mirror == -1:
         #% mirror in y
         dy=Ly/Ny
         M_mrr=ppf.mirror_field_in_y(M,dy,opt_mirror)
