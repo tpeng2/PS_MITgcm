@@ -52,8 +52,8 @@ ppfcns
 2. Spectral analysis
    - [x] Wave-number/frequency spectra on any horizontal fields
    - [x] Rotary spectra given 2-D time series of U and V
-   - [x] Fourier filters on given frequency window
-   - [ ] Fourier filters on given spatial resolution window
+   - [x] Fourier filters on given frequency windows
+   - [x] Fourier filters on given spatial resolution windows
 
 #### Example of frequency filtering
 
