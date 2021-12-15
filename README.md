@@ -57,10 +57,10 @@ ppfcns
 
 #### Example of frequency filtering
 
-Below shows the difference between model and inferred relative vorticity at surface given different frequency filtering window. Note the wave-like patches indicating the projection of topography-generated wave on surface.
+Below shows the difference between model and inferred relative vorticity at surface given different frequency and spatial wavenumber filtering windows. 
 (`/py_process/code/plot_fltd_freq_subplot.py`)
 
-<img src="./py_process/examples/img/diff_vort_rel_uvar_9.png" width="100%" height="100%"></img>
+<img src="./py_process/examples/img/vort_exf_ucon_9_fltd_ly0_119.jpg" width="100%" height="100%"></img>
 
 
 
