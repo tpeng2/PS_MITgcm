@@ -57,11 +57,12 @@ ppfcns
 
 #### Example of frequency filtering
 
-Below shows the difference between model and inferred relative vorticity at surface given different frequency and spatial wavenumber filtering windows. 
+Below shows the model output of relative vorticity at surface given different frequency and spatial wavenumber filtering windows. 
 (`/py_process/code/plot_fltd_freq_subplot.py`)
 
 <img src="./py_process/examples/img/vort_exf_ucon_9_fltd_ly0_119.jpg" width="100%" height="100%"></img>
 
+Similarly, the difference between model output and inferred field by geostrophic model (SSH or pressure based) can be plotted in the same manner.
 
 
 #### Example 1 
