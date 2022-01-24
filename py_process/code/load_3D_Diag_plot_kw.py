@@ -21,7 +21,7 @@ import pickle
 
 #%%
 
-import argparsedict_load_ts['casename']
+import argparse
 import shutil
 
 
