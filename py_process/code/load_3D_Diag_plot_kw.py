@@ -139,7 +139,7 @@ def get_kw_plot(M_obj,M_field,clim_min,clim_max,spec_name,opt_mirror,k_power,loc
         os.stat(save_img_path)
     except:
         os.mkdir(save_img_path)
-    fileobj = open(save_img_path+'_'.join([spec_name,loc_str,dict_plt_kw_spectra['casename'],str(int(Ndays))])+'.pkl', 'wb')
+    fileobj = open(save_img_path+'_'.join([spec_name,loc_str,dict_plt_kw_spectra['casename'],str(int(Ndays))])+'_days.pkl', 'wb')
     pickle.dump(dict_plt_kw_spectra, fileobj)
     fileobj.close()
     #% if plot
