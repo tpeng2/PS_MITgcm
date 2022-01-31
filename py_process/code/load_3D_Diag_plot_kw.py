@@ -119,7 +119,7 @@ def get_kw_plot(M_obj,M_field,clim_min,clim_max,spec_name,opt_mirror,k_power,loc
     Lt=Nt/Fs
     omg,binedge_kappa,KE_kappaT_eff=fcn.proc_kw_spec(M_field,Nx,Ny,Nt,Lx,Ly,Lt,Fs,bins=400,opt_mirror=opt_mirror)
     omg_eff=omg[0:Nt//2]
-    Ndays=Nt/Fs
+    Ndays=int(Nt/Fs)
     title_str=r'$\kappa\omega$'+spec_name+', '+loc_str+',$\Delta x$=$\Delta y$=500m'
     dict_plt_kw_spectra={
         'omg_eff':omg_eff,
@@ -135,7 +135,11 @@ def get_kw_plot(M_obj,M_field,clim_min,clim_max,spec_name,opt_mirror,k_power,loc
         'loc_str':loc_str,
         'save_img_path':save_img_path}
     #% save KE matrix
-    fileobj = open(save_img_path+'_'.join([spec_name,loc_str,dict_plt_kw_spectra['casename'],str(Ndays)])+'.pkl', 'wb')
+    try:
+        os.stat(save_img_path)
+    except:
+        os.mkdir(save_img_path)
+    fileobj = open(save_img_path+'_'.join([spec_name,loc_str,dict_plt_kw_spectra['casename'],str(int(Ndays))])+'.pkl', 'wb')
     pickle.dump(dict_plt_kw_spectra, fileobj)
     fileobj.close()
     #% if plot
@@ -189,7 +193,7 @@ def plot_KE_from_obj(UV_obj,plt_iz_target,loc_str,save_img_path):
     Fs=UV_obj.UV_obj.Fs
     Lt=Nt/Fs
     omg_eff=omg[0:Nt//2]
-    Ndays=Nt/Fs
+    Ndays=int(Nt/Fs)
     spec_name='KE'; 
     title_str=r'$\kappa\omega$'+spec_name+', '+loc_str+',$\Delta x$=$\Delta y$=500m'
     dict_plt_kw_spectra={
