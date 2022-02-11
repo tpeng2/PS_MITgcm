@@ -161,8 +161,12 @@ def proc_kw_spec(M,Nx,Ny,Nt,Lx,Ly,Lt,Fs,bins=400,opt_mirror=1):
     for i in np.arange(len(filter_M)):
         filter_M[i]=tch.tensor(filter_M[i])
 
-    M_filtered=M*filter_M[2][None,None,:]    # in y
+    M_filtered=M*filter_M[0][:,None,None]    # in t
+    print('Filters are added on time axis')
+    M_filtered=M*filter_M[1][None,:,None]    # in y
     print('Filters are added on y-direction')
+    M_filtered=M*filter_M[2][None,None,:]    # in x
+    print('Filters are added on x-direction')
 
     nk=gen_n_vec(Nx)
 
@@ -210,7 +214,7 @@ def proc_kw_spec(M,Nx,Ny,Nt,Lx,Ly,Lt,Fs,bins=400,opt_mirror=1):
         # find label first
         lbl_y,lbl_x=tch.where(label_kappa_eff==i)
         KE_kappaT[:,i]=tch.sum(E_M_fft_klw[:,lbl_y,lbl_x],dim=[1])
-    KE_kappaT_eff=KE_kappaT[0:Nt//2,:]
+    KE_kappaT_eff=KE_kappaT[0:Nt//2,:]/Nt
     return omg,binedge_kappa,KE_kappaT_eff
 
 

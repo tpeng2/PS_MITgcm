@@ -15,7 +15,7 @@ sys.path.append(package_path)
 from PPFCN import *
 import PPFCN.ppfcns as ppf
 import PPFCN.fftfcn as fcn
-
+import scipy as scp
 from scipy import interpolate
 import pickle
 
@@ -110,16 +110,16 @@ def plot_kw_spec(omg_eff,binedge_kappa,KE_kappaT_eff,Ndays,spec_name,casename,ti
     plt.savefig(save_img_path+'/'+casename+'_'+loc_str+'_'+str(Ndays)+'days_KE_1Dspec_kw_Hann.png')
 #%%
 def get_kw_plot(M_obj,M_field,clim_min,clim_max,spec_name,opt_mirror,k_power,loc_str,save_img_path,opt_plot):
-    Nx=M_obj.UV_obj.nx
-    Ny=M_obj.UV_obj.ny
-    Nt=M_obj.nfile_total
-    Lx=M_obj.UV_obj.Lx
-    Ly=M_obj.UV_obj.Ly
+    Nx=M_field.shape[2]
+    Ny=M_field.shape[1]
+    Nt=M_field.shape[0]
+    Lx=M_obj.UV_obj.dx*Nx
+    Ly=M_obj.UV_obj.dy*Ny
     Fs=M_obj.UV_obj.Fs
     Lt=Nt/Fs
     omg,binedge_kappa,KE_kappaT_eff=fcn.proc_kw_spec(M_field,Nx,Ny,Nt,Lx,Ly,Lt,Fs,bins=400,opt_mirror=opt_mirror)
     omg_eff=omg[0:Nt//2]
-    Ndays=int(Nt/Fs)
+    Ndays = int(Nt/Fs)
     title_str=r'$\kappa\omega$'+spec_name+', '+loc_str+',$\Delta x$=$\Delta y$=500m'
     dict_plt_kw_spectra={
         'omg_eff':omg_eff,
@@ -160,8 +160,8 @@ def get_kw_plot(M_obj,M_field,clim_min,clim_max,spec_name,opt_mirror,k_power,loc
 #     'path_results' : home_dir+'/postproc/results/',
 #     'groupname' : '',
 #     'casename' : 'rel_uvar_9',
-#     'start_ind' : 700000,
-#     'end_ind' : 734421,
+#     'start_ind' : 780000,
+#     'end_ind' : 804421,
 #     'Fs' : 8, # samples a day
 #     'dt_model' : 75, # [sec] timestep in the simulations
 #     'z_target' : [1], # [1] for surface
@@ -178,23 +178,23 @@ len_fields=len(dict_load_ts['name_fields'])
 
 UV_obj=UV_from_ts(path_saved_obj,'Uvel')
 UV_obj.load_stitch_tensor([0,4,5])
+f,f_2D=ppf.gen_f_coriolis(-1.0e-4,1.5e-11,UV_obj.UV_obj.xc,UV_obj.UV_obj.yc)
 
 #%% KE
-def plot_KE_from_obj(UV_obj,plt_iz_target,loc_str,save_img_path):
-    u2d=UV_obj.field2D[0][:,plt_iz_target,:,:]
-    spec_name='U'; 
-    omg,binedge_kappa,KE_kappaT_eff_U=get_kw_plot(UV_obj,u2d,clim_min=2,clim_max=12,spec_name=spec_name,opt_mirror=-1,k_power=1,loc_str=loc_str,save_img_path=save_img_path,opt_plot=1)
+def plot_KE_from_obj(u2d,v2d,plt_iz_target,loc_str,spec_name,save_img_path):
+    # u2d=UV_obj.field2D[0][:,plt_iz_target,:,:]
+    omg,binedge_kappa,KE_kappaT_eff_U=get_kw_plot(UV_obj,u2d,clim_min=2,clim_max=12,spec_name='U',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=save_img_path,opt_plot=0)
     del u2d
-    spec_name='V'; 
-    v2d=u2d=UV_obj.field2D[1][:,plt_iz_target,:,:]
-    omg,binedge_kappa,KE_kappaT_eff_V=get_kw_plot(UV_obj,u2d,clim_min=2,clim_max=12,spec_name=spec_name,opt_mirror=-1,k_power=1,loc_str=loc_str,save_img_path=save_img_path,opt_plot=1)
+
+    # v2d=u2d=UV_obj.field2D[1][:,plt_iz_target,:,:]
+    omg,binedge_kappa,KE_kappaT_eff_V=get_kw_plot(UV_obj,v2d,clim_min=2,clim_max=12,spec_name='V',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=save_img_path,opt_plot=0)
     del v2d
     Nt=UV_obj.nfile_total
     Fs=UV_obj.UV_obj.Fs
     Lt=Nt/Fs
     omg_eff=omg[0:Nt//2]
     Ndays=int(Nt/Fs)
-    spec_name='KE'; 
+    # spec_name='KE'; 
     title_str=r'$\kappa\omega$'+spec_name+', '+loc_str+',$\Delta x$=$\Delta y$=500m'
     dict_plt_kw_spectra={
         'omg_eff':omg_eff,
@@ -204,8 +204,8 @@ def plot_KE_from_obj(UV_obj,plt_iz_target,loc_str,save_img_path):
         'spec_name':spec_name,
         'casename':dict_load_ts['casename'],
         'title_str':title_str,
-        'clim_min':4,
-        'clim_max':12,
+        'clim_min':2,
+        'clim_max':8,
         'k_power':1,
         'loc_str':loc_str,
         'save_img_path':save_img_path}
@@ -217,20 +217,13 @@ def plot_KE_from_obj(UV_obj,plt_iz_target,loc_str,save_img_path):
     
 save_img_path=home_dir+'/postproc/img/'
 
-plt_iz_target=0; loc_str='surf'
-plot_KE_from_obj(UV_obj,plt_iz_target,loc_str,save_img_path)
 
-plt_iz_target=1; loc_str='sekm'
-plot_KE_from_obj(UV_obj,plt_iz_target,loc_str,save_img_path)
-
-plt_iz_target=2; loc_str='-200m'
-plot_KE_from_obj(UV_obj,plt_iz_target,loc_str,save_img_path)
 #%% Divergence
 plt_iz_target=0; loc_str='surf'
 div2D=tch.tensor(ppf.get_divergence(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy))
-omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,div2D,clim_min=-3,clim_max=4,spec_name='DIV',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,div2D,clim_min=-3,clim_max=4,spec_name='DIV',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
 del div2D
-#%
+
 plt_iz_target=1; loc_str='sekm'
 div2D=tch.tensor(ppf.get_divergence(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy))
 omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,div2D,clim_min=-3,clim_max=4,spec_name='DIV',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
@@ -243,15 +236,15 @@ del div2D
 
 #%% Vorticity
 plt_iz_target=0; loc_str='surf'
-zeta2D=tch.tensor(ppf.get_vorticity(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy))
-omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,zeta2D,clim_min=-3,clim_max=4,spec_name='ZETA',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
-#%
+zeta2D=tch.tensor(ppf.get_vorticity(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy)/f_2D)
+omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,zeta2D[:,50:-50],clim_min=2,clim_max=10,spec_name='ZETA',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+#%%
 plt_iz_target=1; loc_str='sekm'
-zeta2D=tch.tensor(ppf.get_vorticity(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy))
-omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,zeta2D,clim_min=-3,clim_max=4,spec_name='ZETA',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
+zeta2D=tch.tensor(ppf.get_vorticity(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy)/f_2D)
+omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,zeta2D,clim_min=2,clim_max=10,spec_name='ZETA',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
 plt_iz_target=2; loc_str='-200m'
-zeta2D=tch.tensor(ppf.get_vorticity(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy))
-omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,zeta2D,clim_min=-3,clim_max=4,spec_name='ZETA',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
+zeta2D=tch.tensor(ppf.get_vorticity(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy)/f_2D)
+omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(UV_obj,zeta2D,clim_min=2,clim_max=10,spec_name='ZETA',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
 del zeta2D
 
 
@@ -261,7 +254,7 @@ def plot_P_zeta_geo_ageo(P_obj,plt_iz_target,loc_str):
     P=P_obj.field2D[0][:,plt_iz_target,:,:]/9.81
     omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(P_obj,tch.tensor(P),clim_min=-5,clim_max=5,spec_name='Lap_P',opt_mirror=0,k_power=5,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
     # Geostrophic velocity
-    ugeo,vgeo=ppf.calc_geostrophic_velocity(P,dx=500,dy=500,f_2D=f_2D)
+    ugeo,vgeo=ppf.calc_geostrophic_velocity(P,dx=500,dy=500,f_2D=f_2D)  
     zeta2D_geo=tch.tensor(ppf.get_vorticity(ugeo,vgeo,P_obj.UV_obj.dx,P_obj.UV_obj.dy))
     # Ageostrophic velocity
     uageo=UV_obj.field2D[0][:,plt_iz_target,:,:]-ugeo
@@ -273,30 +266,165 @@ def plot_P_zeta_geo_ageo(P_obj,plt_iz_target,loc_str):
     omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(P_obj,zeta2D_ageo,clim_min=-3,clim_max=4,spec_name='ZETA_ageo',opt_mirror=0,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
     del uageo; del vageo
 
-
+#%%
 P_obj=UV_from_ts(path_saved_obj,'P')
 P_obj.load_stitch_tensor([0,4,5])
 f,f_2D=ppf.gen_f_coriolis(-1.0e-4,1.5e-11,P_obj.UV_obj.xc,P_obj.UV_obj.yc)
-
-
+# KE 
 
 plt_iz_target=0; loc_str='surf'
-plot_P_zeta_geo_ageo(P_obj,plt_iz_target,loc_str)
-
+u2d = UV_obj.field2D[0][:,plt_iz_target,:,:]
+v2d = UV_obj.field2D[1][:,plt_iz_target,:,:]
+u2d_G, v2d_G = tch.tensor( ppf.calc_geostrophic_velocity(P_obj.field2D[0][:,plt_iz_target,:],dx=500,dy=500,f_2D=f_2D))
+du2d = u2d - u2d_G
+dv2d = v2d - v2d_G
+plot_KE_from_obj(u2d[:,50:-50],v2d[:,50:-50],plt_iz_target,loc_str,'KE',save_img_path)
+plot_KE_from_obj(u2d_G[:,50:-50],v2d_G[:,50:-50],plt_iz_target,loc_str,'KE_G',save_img_path)
+plot_KE_from_obj(du2d[:,50:-50],dv2d[:,50:-50],plt_iz_target,loc_str,'KE_AG',save_img_path)
 
 plt_iz_target=1; loc_str='sekm'
-plot_P_zeta_geo_ageo(P_obj,plt_iz_target,loc_str)
-
+u2d = UV_obj.field2D[0][:,plt_iz_target,:,:]
+v2d = UV_obj.field2D[1][:,plt_iz_target,:,:]
+u2d_G, v2d_G = tch.tensor( ppf.calc_geostrophic_velocity(P_obj.field2D[0][:,plt_iz_target,:],dx=500,dy=500,f_2D=f_2D))
+du2d = u2d - u2d_G
+dv2d = v2d - v2d_G
+plot_KE_from_obj(u2d[:,50:-50],v2d[:,50:-50],plt_iz_target,loc_str,'KE',save_img_path)
+plot_KE_from_obj(u2d_G[:,50:-50],v2d_G[:,50:-50],plt_iz_target,loc_str,'KE_G',save_img_path)
+plot_KE_from_obj(du2d[:,50:-50],dv2d[:,50:-50],plt_iz_target,loc_str,'KE_AG',save_img_path)
 
 plt_iz_target=2; loc_str='-200m'
-plot_P_zeta_geo_ageo(P_obj,plt_iz_target,loc_str)
+u2d = UV_obj.field2D[0][:,plt_iz_target,:,:]
+v2d = UV_obj.field2D[1][:,plt_iz_target,:,:]
+u2d_G, v2d_G = tch.tensor( ppf.calc_geostrophic_velocity(P_obj.field2D[0][:,plt_iz_target,:],dx=500,dy=500,f_2D=f_2D))
+du2d = u2d - u2d_G
+dv2d = v2d - v2d_G
+plot_KE_from_obj(u2d[:,50:-50],v2d[:,50:-50],plt_iz_target,loc_str,'KE',save_img_path)
+plot_KE_from_obj(u2d_G[:,50:-50],v2d_G[:,50:-50],plt_iz_target,loc_str,'KE_G',save_img_path)
+plot_KE_from_obj(du2d[:,50:-50],dv2d[:,50:-50],plt_iz_target,loc_str,'KE_AG',save_img_path)
 
+#%%
+plt_iz_target=0; loc_str='surf'
+zeta2D = tch.tensor(ppf.get_vorticity(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy)/f_2D)
+zeta_G = tch.tensor(ppf.calc_Laplacian(P_obj.field2D[0][:,plt_iz_target,:,:],500,500)[0]/f_2D**2)
+dzeta = (zeta_G - zeta2D)
+dzeta_norm = (zeta_G - zeta2D)/(tch.abs(zeta_G) + tch.abs(zeta2D))
+
+snap_name = save_img_path + 'dzeta_norm_'+dict_load_ts['casename']+str('_{:010d}'.format(dict_load_ts['start_ind']))+'.png';
+
+snap_name = save_img_path + 'dzeta_'+dict_load_ts['casename']+str('_{:010d}'.format(dict_load_ts['start_ind']))+'.png';
+plt.figure()
+plt.pcolormesh(UV_obj.UV_obj.xc/1000,UV_obj.UV_obj.yc/1000,dzeta[0],cmap='bwr');
+plt.colorbar();plt.clim([-1,1]);plt.gca().set_aspect('equal');
+plt.xlabel('x [km]');plt.ylabel('y [km]');
+plt.title(r'$-\zeta_{AG}$')
+plt.savefig(snap_name,dpi=300)
+plt.show()
+
+snap_name = save_img_path + 'dzeta_norm_'+dict_load_ts['casename']+str('_{:010d}'.format(dict_load_ts['start_ind']))+'.png';
+plt.figure()
+
+plt.pcolormesh(UV_obj.UV_obj.xc/1000,UV_obj.UV_obj.yc/1000,dzeta_norm[0],cmap='RdGy');
+plt.colorbar();plt.clim([-1,1]);plt.gca().set_aspect('equal');
+plt.xlabel('x [km]');plt.ylabel('y [km]');
+plt.title(r'$-\frac{\zeta_{AG}}{|\zeta_G|+|\zeta|}$=$\frac{\zeta_G-\zeta}{|\zeta_G|+|\zeta|}$')
+plt.savefig(snap_name,dpi=300)
+plt.show()
+
+omg,binedge_kappa,KE_kappaT_eff_G=get_kw_plot(P_obj,zeta_G[:,50:-50],clim_min=2,clim_max=12,spec_name='ZETA_G',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(P_obj,zeta2D[:,50:-50],clim_min=2,clim_max=12,spec_name='ZETA',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+omg,binedge_kappa,KE_kappaT_eff_dzeta=get_kw_plot(P_obj,dzeta[:,50:-50],clim_min=2,clim_max=10,spec_name='dZETA',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+omg,binedge_kappa,KE_kappaT_eff_dzeta=get_kw_plot(P_obj,dzeta_norm[:,50:-50],clim_min=2,clim_max=10,spec_name='dZETA_norm',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+#%%
+plt_iz_target=1; loc_str='sekm'
+zeta2D = tch.tensor(ppf.get_vorticity(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy)/f_2D)
+zeta_G = tch.tensor(ppf.calc_Laplacian(P_obj.field2D[0][:,plt_iz_target,:,:],500,500)[0]/f_2D**2)
+dzeta = (zeta_G - zeta2D)
+dzeta_norm = (zeta_G - zeta2D)/(tch.abs(zeta_G) + tch.abs(zeta2D))
+
+snap_name = save_img_path + 'dzeta_'+dict_load_ts['casename']+str('_{:010d}'.format(dict_load_ts['start_ind']))+'.png';
+plt.figure()
+plt.pcolormesh(UV_obj.UV_obj.xc/1000,UV_obj.UV_obj.yc/1000,dzeta[0],cmap='bwr');
+plt.colorbar();plt.clim([-1,1]);plt.gca().set_aspect('equal');
+plt.xlabel('x [km]');plt.ylabel('y [km]');
+plt.title(r'$-\zeta_{AG}$')
+plt.savefig(snap_name,dpi=300)
+plt.show()
+
+snap_name = save_img_path + 'dzeta_norm_'+dict_load_ts['casename']+str('_{:010d}'.format(dict_load_ts['start_ind']))+'.png';
+plt.figure()
+plt.pcolormesh(UV_obj.UV_obj.xc/1000,UV_obj.UV_obj.yc/1000,dzeta_norm[0],cmap='RdGy');
+plt.colorbar();plt.clim([-1,1]);plt.gca().set_aspect('equal');
+plt.xlabel('x [km]');plt.ylabel('y [km]');
+plt.title(r'$-\frac{\zeta_{AG}}{|\zeta_G|+|\zeta|}$=$\frac{\zeta_G-\zeta}{|\zeta_G|+|\zeta|}$')
+plt.savefig(snap_name,dpi=300)
+plt.show()
+
+omg,binedge_kappa,KE_kappaT_eff_G=get_kw_plot(P_obj,zeta_G[:,50:-50],clim_min=2,clim_max=12,spec_name='ZETA_G',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(P_obj,zeta2D[:,50:-50],clim_min=2,clim_max=12,spec_name='ZETA',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+omg,binedge_kappa,KE_kappaT_eff_dzeta=get_kw_plot(P_obj,dzeta[:,50:-50],clim_min=2,clim_max=10,spec_name='dZETA',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+omg,binedge_kappa,KE_kappaT_eff_dzeta=get_kw_plot(P_obj,dzeta_norm[:,50:-50],clim_min=2,clim_max=10,spec_name='dZETA_norm',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+
+#%%
+plt_iz_target=2; loc_str='-200m'
+zeta2D = tch.tensor(ppf.get_vorticity(UV_obj.field2D[0][:,plt_iz_target,:,:],UV_obj.field2D[1][:,plt_iz_target,:,:],UV_obj.UV_obj.dx,UV_obj.UV_obj.dy)/f_2D)
+zeta_G = tch.tensor(ppf.calc_Laplacian(P_obj.field2D[0][:,plt_iz_target,:,:],500,500)[0]/f_2D**2)
+dzeta = (zeta_G - zeta2D)
+dzeta_norm = (zeta_G - zeta2D)/(tch.abs(zeta_G) + tch.abs(zeta2D))
+
+snap_name = save_img_path + 'dzeta_'+dict_load_ts['casename']+str('_{:010d}'.format(dict_load_ts['start_ind']))+'.png';
+plt.figure()
+plt.pcolormesh(UV_obj.UV_obj.xc/1000,UV_obj.UV_obj.yc/1000,dzeta[0],cmap='bwr');
+plt.colorbar();plt.clim([-1,1]);plt.gca().set_aspect('equal');
+plt.xlabel('x [km]');plt.ylabel('y [km]');
+plt.title(r'$-\zeta_{AG}$')
+plt.savefig(snap_name,dpi=300)
+plt.show()
+
+snap_name = save_img_path + 'dzeta_norm_'+dict_load_ts['casename']+str('_{:010d}'.format(dict_load_ts['start_ind']))+'.png';
+plt.figure()
+plt.pcolormesh(UV_obj.UV_obj.xc/1000,UV_obj.UV_obj.yc/1000,dzeta_norm[0],cmap='RdGy');
+plt.colorbar();plt.clim([-1,1]);plt.gca().set_aspect('equal');
+plt.xlabel('x [km]');plt.ylabel('y [km]');
+plt.title(r'$-\frac{\zeta_{AG}}{|\zeta_G|+|\zeta|}$=$\frac{\zeta_G-\zeta}{|\zeta_G|+|\zeta|}$')
+plt.savefig(snap_name,dpi=300)
+plt.show()
+
+omg,binedge_kappa,KE_kappaT_eff_G=get_kw_plot(P_obj,zeta_G[:,50:-50],clim_min=2,clim_max=12,spec_name='ZETA_G',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(P_obj,zeta2D[:,50:-50],clim_min=2,clim_max=12,spec_name='ZETA',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+omg,binedge_kappa,KE_kappaT_eff_dzeta=get_kw_plot(P_obj,dzeta[:,50:-50],clim_min=2,clim_max=10,spec_name='dZETA',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+omg,binedge_kappa,KE_kappaT_eff_dzeta=get_kw_plot(P_obj,dzeta_norm[:,50:-50],clim_min=2,clim_max=10,spec_name='dZETA_norm',opt_mirror=1,k_power=1,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=1)
+
+
+
+#%%
+plt_iz_target=0; loc_str='surf'
+P2D=tch.tensor(P_obj.field2D[0][:,plt_iz_target,:,:]/(np.pi)/f_2D)
+omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(P_obj,P2D,clim_min=2,clim_max=12,spec_name='Pk5',opt_mirror=1,k_power=5,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
+
+plt_iz_target=1; loc_str='sekm'
+P2D=tch.tensor(P_obj.field2D[0][:,plt_iz_target,:,:]/(np.pi)/f_2D)
+omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(P_obj,P2D,clim_min=2,clim_max=12,spec_name='Pk5',opt_mirror=1,k_power=5,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
+plt_iz_target=2; loc_str='-200m'
+P2D=tch.tensor(P_obj.field2D[0][:,plt_iz_target,:,:]/(np.pi)/f_2D)
+omg,binedge_kappa,KE_kappaT_eff=get_kw_plot(P_obj,P2D,clim_min=2,clim_max=12,spec_name='Pk5',opt_mirror=1,k_power=5,loc_str=loc_str,save_img_path=home_dir+'/postproc/img/',opt_plot=0)
+#%%
+
+# plt_iz_target=0; loc_str='surf'
+# plot_P_zeta_geo_ageo(P_obj,plt_iz_target,loc_str)
+
+
+# plt_iz_target=1; loc_str='sekm'
+# plot_P_zeta_geo_ageo(P_obj,plt_iz_target,loc_str)
+
+
+# plt_iz_target=2; loc_str='-200m'
+# plot_P_zeta_geo_ageo(P_obj,plt_iz_target,loc_str)
+#%%
 del P_obj
 del UV_obj
 #%% load other files
 W_obj=UV_from_ts(path_saved_obj,'W')
 W_obj.load_stitch_tensor([1,4,5])
-
 
 plt_iz_target=0; loc_str='ssurf'
 W2D=tch.tensor(W_obj.field2D[0][:,plt_iz_target,:,:])
